@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: spacio
       POSTGRES_PASSWORD: spacio123
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
