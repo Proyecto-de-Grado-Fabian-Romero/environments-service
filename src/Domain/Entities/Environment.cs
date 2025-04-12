@@ -42,9 +42,15 @@ public class Environment
 
     public ICollection<DiscountPolicy> DiscountPolicies { get; set; } = [];
 
-    public ICollection<Availability> Availabilities { get; set; } = [];
+    public ICollection<NonAvailability> NonAvailabilities { get; set; } = [];
 
     public ICollection<EnvironmentService> EnvironmentServices { get; set; } = [];
 
     public ICollection<EnvironmentArea> EnvironmentAreas { get; set; } = [];
+
+    public ICollection<Tour360Request> Tour360Requests { get; set; } = [];
+
+    public ICollection<WeeklySchedule> WeeklySchedules { get; set; } = [];
+
+    public ICollection<SpecialAvailability> SpecialAvailabilities { get; set; } = [];
 }

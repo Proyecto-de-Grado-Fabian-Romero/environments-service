@@ -1,16 +1,16 @@
 namespace EnvironmentsService.Src.Domain.Entities;
 
-public class EnvironmentPhoto
+public class Tour360Request
 {
     public Guid Id { get; set; }
 
     public Guid EnvironmentId { get; set; }
 
-    required public string FileId { get; set; }
+    public long RequestDate { get; set; }
 
-    required public string FileName { get; set; }
+    public long? ScheduledDate { get; set; }
 
-    public int Order { get; set; }
+    public string Status { get; set; } = "pending";
 
     public Environment Environment { get; set; } = null!;
 }

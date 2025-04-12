@@ -7,4 +7,6 @@ public class Service
     public string Name { get; set; } = string.Empty;
 
     public ICollection<EnvironmentService> EnvironmentServices { get; set; } = [];
+
+    public string PublicKey { get; set; } = string.Empty;
 }

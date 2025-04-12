@@ -7,4 +7,6 @@ public class Area
     public string Name { get; set; } = string.Empty;
 
     public ICollection<EnvironmentArea> EnvironmentAreas { get; set; } = [];
+
+    public string PublicKey { get; set; } = string.Empty;
 }

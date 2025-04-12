@@ -24,9 +24,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src/Application/" />
-    <Folder Include="src/Application/DTOs/" />
-  </ItemGroup>
-
 </Project>
