@@ -4,7 +4,7 @@ public class EnvironmentDto
 {
     public Guid PublicId { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
 
@@ -36,7 +36,7 @@ public class EnvironmentDto
 
     public List<ServiceDto> Services { get; set; } = [];
 
-    public List<AreaDto> Areas { get; set; } = [];
+    public List<EnvironmentAreaDto> Areas { get; set; } = [];
 
     public List<PricingPolicyDto> PricingPolicies { get; set; } = [];
 

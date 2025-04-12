@@ -9,4 +9,6 @@ public class EnvironmentArea
     public Environment Environment { get; set; } = null!;
 
     public Area Area { get; set; } = null!;
+
+    public int Quantity { get; set; } = 0;
 }

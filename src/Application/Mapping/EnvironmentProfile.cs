@@ -16,9 +16,14 @@ public class EnvironmentProfile : Profile
                 src.Tour360Requests
                     .Where(r => r.ScheduledDate.HasValue)
                     .OrderByDescending(r => r.ScheduledDate)
-                    .FirstOrDefault())).ReverseMap();
+                    .FirstOrDefault()))
+            .ReverseMap();
+
         CreateMap<Environment, GetAllEnvironmentDto>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type)).ReverseMap();
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+            .ForMember(dest => dest.PricingPolicies, opt => opt.MapFrom(src => src.PricingPolicies))
+            .ReverseMap();
+
         CreateMap<EnvironmentPhoto, EnvironmentPhotoDto>().ReverseMap();
         CreateMap<EnvironmentType, EnvironmentTypeDto>().ReverseMap();
         CreateMap<NonAvailability, NonAvailabilityDto>().ReverseMap();
@@ -29,5 +34,6 @@ public class EnvironmentProfile : Profile
         CreateMap<Tour360Request, Tour360RequestDto>().ReverseMap();
         CreateMap<WeeklySchedule, WeeklyScheduleDto>().ReverseMap();
         CreateMap<SpecialAvailability, SpecialAvailabilityDto>().ReverseMap();
+        CreateMap<EnvironmentArea, EnvironmentAreaDto>().ReverseMap();
     }
 }

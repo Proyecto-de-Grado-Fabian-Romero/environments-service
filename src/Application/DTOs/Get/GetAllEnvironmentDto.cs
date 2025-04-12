@@ -4,7 +4,7 @@ public class GetAllEnvironmentDto
 {
     public Guid PublicId { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
 
@@ -27,4 +27,8 @@ public class GetAllEnvironmentDto
     public int MaxRentalTime { get; set; }
 
     public string RentalUnit { get; set; } = "hour";
+
+    public List<string> PhotoUrls { get; set; } = [];
+
+    public List<PricingPolicyDto> PricingPolicies { get; set; } = [];
 }
