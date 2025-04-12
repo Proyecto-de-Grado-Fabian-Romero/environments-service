@@ -15,7 +15,7 @@ public class EnvironmentsController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("available")]
+    [HttpPost("available")]
     public async Task<IActionResult> GetAvailableEnvironments([FromBody] GetAvailableEnvironmentsRequest request)
     {
         var result = await _service.GetAvailableEnvironmentsAsync(request);
