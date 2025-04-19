@@ -21,7 +21,7 @@ jobs:
         run: dotnet restore
 
       - name: Check code format
-        run: dotnet format MediaService.sln --verify-no-changes
+        run: dotnet format EnvironmentsService.sln --verify-no-changes
     
       - name: Build
         run: dotnet build --no-restore --configuration Release
