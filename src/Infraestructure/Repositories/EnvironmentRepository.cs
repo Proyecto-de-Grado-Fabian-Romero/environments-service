@@ -8,7 +8,8 @@ public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
 {
     private readonly DbContext _context = context;
 
-    public async Task<List<Src.Domain.Entities.Environment>> FilterEnvironmentsAsync(GetAvailableEnvironmentsRequest request)
+    public async Task<(List<Src.Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
+    GetAvailableEnvironmentsRequest request, int page, int limit)
     {
         var query = _context.Set<Src.Domain.Entities.Environment>()
             .Include(e => e.Type)
@@ -17,6 +18,7 @@ public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
             .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
             .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
             .Include(e => e.NonAvailabilities)
+            .Where(e => !e.Deleted && !e.Hidden)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.Location))
@@ -47,14 +49,14 @@ public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
                     (!request.MaxPrice.HasValue || p.BasePrice <= request.MaxPrice)));
         }
 
-        if (request.ServicePublicKeys?.Any() == true)
+        if (request.ServicePublicKeys?.Count > 0)
         {
             query = query.Where(e =>
                 request.ServicePublicKeys.All(reqKey =>
                     e.EnvironmentServices.Any(es => es.Service.PublicKey == reqKey)));
         }
 
-        if (request.Areas?.Any() == true)
+        if (request.Areas?.Count > 0)
         {
             foreach (var (areaPublicKey, minQuantity) in request.Areas)
             {
@@ -70,6 +72,28 @@ public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
                 n.StartDate <= request.StartDate && n.EndDate >= request.EndDate));
         }
 
-        return await query.ToListAsync();
+        var totalItems = await query.CountAsync();
+
+        var environments = await query
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync();
+
+        return (environments, totalItems);
+    }
+
+    public async Task<Src.Domain.Entities.Environment?> GetSingleEnvironment(Guid publicId)
+    {
+        return await _context.Set<Src.Domain.Entities.Environment>()
+            .Include(e => e.Type)
+            .Include(e => e.PricingPolicies)
+            .Include(e => e.Photos)
+            .Include(e => e.DiscountPolicies)
+            .Include(e => e.WeeklySchedules)
+            .Include(e => e.SpecialAvailabilities)
+            .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
+            .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
+            .Include(e => e.NonAvailabilities)
+            .FirstOrDefaultAsync(e => e.PublicId == publicId);
     }
 }

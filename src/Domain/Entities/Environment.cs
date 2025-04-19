@@ -53,4 +53,8 @@ public class Environment
     public ICollection<WeeklySchedule> WeeklySchedules { get; set; } = [];
 
     public ICollection<SpecialAvailability> SpecialAvailabilities { get; set; } = [];
+
+    public bool Deleted { get; set; }
+
+    public bool Hidden { get; set; }
 }

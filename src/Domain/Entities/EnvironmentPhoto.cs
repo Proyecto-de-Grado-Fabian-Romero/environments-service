@@ -10,6 +10,8 @@ public class EnvironmentPhoto
 
     required public string FileName { get; set; }
 
+    required public string Url { get; set; }
+
     public int Order { get; set; }
 
     public Environment Environment { get; set; } = null!;

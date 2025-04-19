@@ -5,5 +5,7 @@ namespace EnvironmentsService.Src.Application.Interfaces;
 
 public interface IEnvironmentService
 {
-    Task<IEnumerable<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request);
+    Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request, int page, int limit);
+
+    Task<EnvironmentDto?> GetSingleEnvironment(Guid publicId);
 }

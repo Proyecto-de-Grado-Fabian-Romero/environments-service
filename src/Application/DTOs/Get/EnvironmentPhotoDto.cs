@@ -6,5 +6,7 @@ public class EnvironmentPhotoDto
 
     public string FileName { get; set; } = string.Empty;
 
+    public string Url { get; set; } = string.Empty;
+
     public int Order { get; set; }
 }

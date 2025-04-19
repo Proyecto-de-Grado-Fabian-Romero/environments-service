@@ -30,13 +30,13 @@ public class EnvironmentDto
 
     public string RentalUnit { get; set; } = "hour";
 
-    public Dictionary<string, int>? Equipment { get; set; }
+    public string Equipment { get; set; } = string.Empty;
 
     public List<EnvironmentPhotoDto> Photos { get; set; } = [];
 
     public List<ServiceDto> Services { get; set; } = [];
 
-    public List<EnvironmentAreaDto> Areas { get; set; } = [];
+    public List<EnvironmentAreaDto> EnvironmentAreas { get; set; } = [];
 
     public List<PricingPolicyDto> PricingPolicies { get; set; } = [];
 
@@ -47,4 +47,6 @@ public class EnvironmentDto
     public ICollection<SpecialAvailabilityDto> SpecialAvailabilities { get; set; } = [];
 
     public long? LastTour360Date { get; set; }
+
+    public List<string> PhotoUrls { get; set; } = [];
 }
