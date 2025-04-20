@@ -1,6 +1,6 @@
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
 
-namespace EnvironmentsService.src.Domain.Interfaces;
+namespace EnvironmentsService.Src.Domain.Interfaces;
 
 public interface IEnvironmentRepository
 {

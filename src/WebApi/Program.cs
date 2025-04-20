@@ -1,15 +1,12 @@
-using EnvironmentsService.Src.Application.Commands.Concretes;
-using EnvironmentsService.Src.Application.Commands.Interfaces;
-using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Application.Interfaces;
 using EnvironmentsService.Src.Application.Mapping;
 using EnvironmentsService.Src.Application.Pipelines;
 using EnvironmentsService.Src.Application.Services;
 using EnvironmentsService.Src.Application.Strategies.Concretes.GetEnvironments;
 using EnvironmentsService.Src.Application.Strategies.Interfaces;
-using EnvironmentsService.src.Domain.Interfaces;
-using EnvironmentsService.src.Infraestructure.Data;
-using EnvironmentsService.src.Infraestructure.Repositories;
+using EnvironmentsService.Src.Domain.Interfaces;
+using EnvironmentsService.Src.Infraestructure.Data;
+using EnvironmentsService.Src.Infraestructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,8 +28,14 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<IEnvironmentService, EnvironmentService>();
 builder.Services.AddScoped<IEnvironmentRepository, EnvironmentRepository>();
+builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<IAreaRepository, AreaRepository>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+
 builder.Services.AddScoped<DbContext, AppDbContext>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, LocationFilterStrategy>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, EnvironmentTypeFilterStrategy>();

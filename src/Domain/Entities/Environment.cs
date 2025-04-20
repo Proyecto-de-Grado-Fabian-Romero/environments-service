@@ -32,7 +32,7 @@ public class Environment
 
     public int MaxRentalTime { get; set; }
 
-    required public string RentalUnit { get; set; }
+    required public string RentalUnit { get; set; } // "hour" or "day"
 
     required public EnvironmentType Type { get; set; }
 
