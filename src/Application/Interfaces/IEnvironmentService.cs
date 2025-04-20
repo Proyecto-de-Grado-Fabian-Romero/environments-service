@@ -7,5 +7,5 @@ public interface IEnvironmentService
 {
     Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request, int page, int limit);
 
-    Task<EnvironmentDto?> GetSingleEnvironment(Guid publicId);
+    Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId);
 }

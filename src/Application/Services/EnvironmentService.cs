@@ -1,4 +1,5 @@
 using AutoMapper;
+using EnvironmentsService.Src.Application.Commands.Concretes;
 using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
 using EnvironmentsService.Src.Application.Interfaces;
@@ -13,27 +14,13 @@ public class EnvironmentService(IEnvironmentRepository repository, IMapper mappe
 
     public async Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request, int page, int limit)
     {
-        var (environments, totalItems) = await _repository.FilterEnvironmentsAsync(request, page, limit);
-
-        int totalPages = (int)Math.Ceiling(totalItems / (double)limit);
-
-        var environmentDtos = _mapper.Map<List<GetAllEnvironmentDto>>(environments);
-
-        return new PagedResult<GetAllEnvironmentDto>
-        {
-            Items = environmentDtos,
-            CurrentPage = page,
-            TotalPages = totalPages,
-            Limit = limit,
-            TotalItems = totalItems,
-        };
+        var command = new GetAllEnvironmentsCommand(_repository, _mapper, request, page, limit);
+        return await command.ExecuteAsync();
     }
 
-    public async Task<EnvironmentDto?> GetSingleEnvironment(Guid publicId)
+    public async Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId)
     {
-        var environment = await _repository.GetSingleEnvironment(publicId);
-        var environmentDto = _mapper.Map<EnvironmentDto>(environment);
-
-        return environmentDto;
+        var command = new GetSingleEnvironmentCommand(_repository, _mapper, publicId);
+        return await command.ExecuteAsync();
     }
 }
