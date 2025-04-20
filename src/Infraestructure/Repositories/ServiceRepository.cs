@@ -12,4 +12,11 @@ public class ServiceRepository(DbContext context) : IServiceRepository
     {
         return await _context.Set<Service>().ToListAsync();
     }
+
+    public async Task<Dictionary<string, Guid>> GetIdsByPublicKeysAsync(List<string> publicKeys)
+    {
+        return await _context.Set<Service>()
+            .Where(s => publicKeys.Contains(s.PublicKey))
+            .ToDictionaryAsync(s => s.PublicKey, s => s.Id);
+    }
 }

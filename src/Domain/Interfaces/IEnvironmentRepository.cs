@@ -4,8 +4,12 @@ namespace EnvironmentsService.Src.Domain.Interfaces;
 
 public interface IEnvironmentRepository
 {
-    Task<(List<Src.Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
+    Task<(List<Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
     GetAvailableEnvironmentsRequest request, int page, int limit);
 
-    Task<Src.Domain.Entities.Environment?> GetSingleEnvironment(Guid publicId);
+    Task<Entities.Environment?> GetSingleEnvironment(Guid publicId);
+
+    Task AddAsync(Entities.Environment environment);
+
+    Task SaveChangesAsync();
 }

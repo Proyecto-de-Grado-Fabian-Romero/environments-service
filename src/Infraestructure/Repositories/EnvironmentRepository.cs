@@ -10,10 +10,10 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
     private readonly DbContext _context = context;
     private readonly EnvironmentFilterPipeline _pipeline = pipeline;
 
-    public async Task<(List<Src.Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
+    public async Task<(List<Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
         GetAvailableEnvironmentsRequest request, int page, int limit)
     {
-        var baseQuery = _context.Set<Src.Domain.Entities.Environment>()
+        var baseQuery = _context.Set<Domain.Entities.Environment>()
             .Include(e => e.Type)
             .Include(e => e.PricingPolicies)
             .Include(e => e.Photos)
@@ -36,9 +36,9 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
         return (environments, totalItems);
     }
 
-    public async Task<Src.Domain.Entities.Environment?> GetSingleEnvironment(Guid publicId)
+    public async Task<Domain.Entities.Environment?> GetSingleEnvironment(Guid publicId)
     {
-        return await _context.Set<Src.Domain.Entities.Environment>()
+        return await _context.Set<Domain.Entities.Environment>()
             .Include(e => e.Type)
             .Include(e => e.PricingPolicies)
             .Include(e => e.Photos)
@@ -50,5 +50,15 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
             .Include(e => e.NonAvailabilities)
             .Where(e => e.Deleted == false && e.Hidden == false)
             .FirstOrDefaultAsync(e => e.PublicId == publicId);
+    }
+
+    public async Task AddAsync(Domain.Entities.Environment environment)
+    {
+        await _context.Set<Domain.Entities.Environment>().AddAsync(environment);
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
     }
 }
