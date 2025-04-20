@@ -5,21 +5,14 @@ using EnvironmentsService.src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Commands.Concretes;
 
-public class GetSingleEnvironmentCommand : ICommand<EnvironmentDto?>
+public class GetSingleEnvironmentCommand(
+    IEnvironmentRepository repository,
+    IMapper mapper,
+    Guid publicId) : ICommand<EnvironmentDto?>
 {
-    private readonly IEnvironmentRepository _repository;
-    private readonly IMapper _mapper;
-    private readonly Guid _publicId;
-
-    public GetSingleEnvironmentCommand(
-        IEnvironmentRepository repository,
-        IMapper mapper,
-        Guid publicId)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _publicId = publicId;
-    }
+    private readonly IEnvironmentRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
+    private readonly Guid _publicId = publicId;
 
     public async Task<EnvironmentDto?> ExecuteAsync()
     {

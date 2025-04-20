@@ -6,27 +6,18 @@ using EnvironmentsService.src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Commands.Concretes;
 
-public class GetAllEnvironmentsCommand : ICommand<PagedResult<GetAllEnvironmentDto>>
+public class GetAllEnvironmentsCommand(
+    IEnvironmentRepository repository,
+    IMapper mapper,
+    GetAvailableEnvironmentsRequest request,
+    int page,
+    int limit) : ICommand<PagedResult<GetAllEnvironmentDto>>
 {
-    private readonly IEnvironmentRepository _repository;
-    private readonly IMapper _mapper;
-    private readonly GetAvailableEnvironmentsRequest _request;
-    private readonly int _page;
-    private readonly int _limit;
-
-    public GetAllEnvironmentsCommand(
-        IEnvironmentRepository repository,
-        IMapper mapper,
-        GetAvailableEnvironmentsRequest request,
-        int page,
-        int limit)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _request = request;
-        _page = page;
-        _limit = limit;
-    }
+    private readonly IEnvironmentRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
+    private readonly GetAvailableEnvironmentsRequest _request = request;
+    private readonly int _page = page;
+    private readonly int _limit = limit;
 
     public async Task<PagedResult<GetAllEnvironmentDto>> ExecuteAsync()
     {

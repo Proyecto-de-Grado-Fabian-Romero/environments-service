@@ -23,7 +23,7 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
     [HttpGet("single")]
     public async Task<IActionResult> GetAvailableEnvironments([FromQuery] Guid publicId)
     {
-        var result = await _service.GetSingleEnvironment(publicId);
+        var result = await _service.GetSingleEnvironmentAsync(publicId);
         return Ok(result);
     }
 }
