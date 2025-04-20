@@ -1,6 +1,7 @@
 namespace EnvironmentsService.Src.Application.Mapping;
 
 using AutoMapper;
+using EnvironmentsService.Src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Domain.Entities;
 
@@ -35,6 +36,20 @@ public class EnvironmentProfile : Profile
                     .OrderByDescending(r => r.ScheduledDate)
                     .FirstOrDefault()))
             .ReverseMap();
+
+        CreateMap<CreateEnvironmentDto, Environment>()
+           .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
+           .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
+           .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location))
+           .ForMember(dest => dest.TypeId, opt => opt.Ignore())
+           .ForMember(dest => dest.EnvironmentServices, opt => opt.Ignore())
+           .ForMember(dest => dest.EnvironmentAreas, opt => opt.Ignore())
+           .ForMember(dest => dest.Tour360Requests, opt => opt.Ignore())
+           .ForMember(dest => dest.Photos, opt => opt.Ignore())
+           .ForMember(dest => dest.Equipment, opt => opt.Ignore())
+           .ForMember(dest => dest.PricingPolicies, opt => opt.MapFrom(src => src.PricingPolicies))
+           .ForMember(dest => dest.DiscountPolicies, opt => opt.MapFrom(src => src.DiscountPolicies))
+           .ForMember(dest => dest.WeeklySchedules, opt => opt.MapFrom(src => src.WeeklySchedules));
 
         CreateMap<Area, AreaDto>().ReverseMap();
         CreateMap<EnvironmentPhoto, EnvironmentPhotoDto>().ReverseMap();
