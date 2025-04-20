@@ -2,7 +2,7 @@ using AutoMapper;
 using EnvironmentsService.Src.Application.Commands.Interfaces;
 using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
-using EnvironmentsService.src.Domain.Interfaces;
+using EnvironmentsService.Src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Commands.Concretes;
 

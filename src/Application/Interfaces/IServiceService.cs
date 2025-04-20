@@ -1,8 +1,8 @@
 using EnvironmentsService.Src.Application.DTOs.Get;
 
-namespace EnvironmentsService.src.Application.Interfaces;
+namespace EnvironmentsService.Src.Application.Interfaces;
 
 public interface IServiceService
 {
-    Task<ServiceDto> GetAllServicesAsync();
+    Task<List<ServiceDto>> GetAllAsync();
 }

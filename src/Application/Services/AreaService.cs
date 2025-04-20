@@ -1,9 +1,9 @@
 using AutoMapper;
 using EnvironmentsService.Src.Application.DTOs.Get;
-using EnvironmentsService.src.Application.Interfaces;
-using EnvironmentsService.src.Domain.Interfaces;
+using EnvironmentsService.Src.Application.Interfaces;
+using EnvironmentsService.Src.Domain.Interfaces;
 
-namespace EnvironmentsService.src.Application.Services;
+namespace EnvironmentsService.Src.Application.Services;
 
 public class AreaService(IAreaRepository areaRepository, IMapper mapper) : IAreaService
 {

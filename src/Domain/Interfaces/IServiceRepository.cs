@@ -1,8 +1,8 @@
 using EnvironmentsService.Src.Domain.Entities;
 
-namespace EnvironmentsService.src.Domain.Interfaces;
+namespace EnvironmentsService.Src.Domain.Interfaces;
 
 public interface IServiceRepository
 {
-    Task<Service> GetServicesAsync();
+    Task<List<Service>> GetAllAsync();
 }

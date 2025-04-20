@@ -1,9 +1,9 @@
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
 using EnvironmentsService.Src.Application.Pipelines;
-using EnvironmentsService.src.Domain.Interfaces;
+using EnvironmentsService.Src.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace EnvironmentsService.src.Infraestructure.Repositories;
+namespace EnvironmentsService.Src.Infraestructure.Repositories;
 
 public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline pipeline) : IEnvironmentRepository
 {

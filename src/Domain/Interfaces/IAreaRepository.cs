@@ -1,6 +1,6 @@
 using EnvironmentsService.Src.Domain.Entities;
 
-namespace EnvironmentsService.src.Domain.Interfaces;
+namespace EnvironmentsService.Src.Domain.Interfaces;
 
 public interface IAreaRepository
 {

@@ -6,14 +6,14 @@ using EnvironmentsService.Src.Application.DTOs.Get;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AreasController(IAreaService areaService) : ControllerBase
+public class ServicesController(IServiceService serviceService) : ControllerBase
 {
-    private readonly IAreaService _areaService = areaService;
+    private readonly IServiceService _serviceService = serviceService;
 
     [HttpGet]
     public async Task<ActionResult<List<AreaDto>>> GetAllAreas()
     {
-        var areas = await _areaService.GetAllAsync();
-        return Ok(areas);
+        var services = await _serviceService.GetAllAsync();
+        return Ok(services);
     }
 }

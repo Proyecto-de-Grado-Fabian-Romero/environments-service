@@ -1,4 +1,4 @@
-namespace EnvironmentsService.src.Infraestructure.Data;
+namespace EnvironmentsService.Src.Infraestructure.Data;
 
 using EnvironmentsService.Src.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

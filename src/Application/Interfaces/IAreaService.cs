@@ -1,6 +1,6 @@
 using EnvironmentsService.Src.Application.DTOs.Get;
 
-namespace EnvironmentsService.src.Application.Interfaces;
+namespace EnvironmentsService.Src.Application.Interfaces;
 
 public interface IAreaService
 {

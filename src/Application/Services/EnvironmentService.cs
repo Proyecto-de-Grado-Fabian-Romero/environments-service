@@ -3,7 +3,7 @@ using EnvironmentsService.Src.Application.Commands.Concretes;
 using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
 using EnvironmentsService.Src.Application.Interfaces;
-using EnvironmentsService.src.Domain.Interfaces;
+using EnvironmentsService.Src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Services;
 

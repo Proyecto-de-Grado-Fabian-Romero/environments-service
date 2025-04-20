@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EnvironmentsService.Src.Infraestructure.Repositories;
 
-public class AreaRepository(DbContext context) : IAreaRepository
+public class ServiceRepository(DbContext context) : IServiceRepository
 {
     private readonly DbContext _context = context;
 
-    public async Task<List<Area>> GetAllAsync()
+    public async Task<List<Service>> GetAllAsync()
     {
-        return await _context.Set<Area>().ToListAsync();
+        return await _context.Set<Service>().ToListAsync();
     }
 }

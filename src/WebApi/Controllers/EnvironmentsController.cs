@@ -14,7 +14,7 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
     public async Task<IActionResult> GetAvailableEnvironments(
     [FromBody] GetAvailableEnvironmentsRequest request,
     [FromQuery] int page = 1,
-    [FromQuery] int limit = 10)
+    [FromQuery] int limit = 16)
     {
         var result = await _service.GetAvailableEnvironmentsAsync(request, page, limit);
         return Ok(result);
