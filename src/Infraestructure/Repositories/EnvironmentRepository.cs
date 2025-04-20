@@ -94,6 +94,7 @@ public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
             .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
             .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
             .Include(e => e.NonAvailabilities)
+            .Where(e => e.Deleted == false && e.Hidden == false)
             .FirstOrDefaultAsync(e => e.PublicId == publicId);
     }
 }
