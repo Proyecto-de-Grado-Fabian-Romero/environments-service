@@ -1,80 +1,34 @@
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
+using EnvironmentsService.Src.Application.Pipelines;
 using EnvironmentsService.src.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace EnvironmentsService.src.Infraestructure.Repositories;
 
-public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
+public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline pipeline) : IEnvironmentRepository
 {
     private readonly DbContext _context = context;
+    private readonly EnvironmentFilterPipeline _pipeline = pipeline;
 
     public async Task<(List<Src.Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
-    GetAvailableEnvironmentsRequest request, int page, int limit)
+        GetAvailableEnvironmentsRequest request, int page, int limit)
     {
-        var query = _context.Set<Src.Domain.Entities.Environment>()
+        var baseQuery = _context.Set<Src.Domain.Entities.Environment>()
             .Include(e => e.Type)
             .Include(e => e.PricingPolicies)
             .Include(e => e.Photos)
             .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
             .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
             .Include(e => e.NonAvailabilities)
-            .Where(e => !e.Deleted && !e.Hidden)
+            .Where(e => e.Deleted == false)
+            .Where(e => e.Hidden == false)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(request.Location))
-        {
-            query = query.Where(e => e.Location.Contains(request.Location));
-        }
+        var filteredQuery = _pipeline.ApplyFilters(baseQuery, request);
 
-        if (!string.IsNullOrWhiteSpace(request.EnvironmentTypePublicKey))
-        {
-            query = query.Where(e => e.Type.PublicKey == request.EnvironmentTypePublicKey);
-        }
+        var totalItems = await filteredQuery.CountAsync();
 
-        if (request.InstantBookingRequired.HasValue)
-        {
-            query = query.Where(e => e.InstantBooking == request.InstantBookingRequired);
-        }
-
-        if (request.MinCapacity.HasValue)
-        {
-            query = query.Where(e => e.Capacity >= request.MinCapacity);
-        }
-
-        if (request.MinPrice.HasValue || request.MaxPrice.HasValue)
-        {
-            query = query.Where(e =>
-                e.PricingPolicies.Any(p =>
-                    (!request.MinPrice.HasValue || p.BasePrice >= request.MinPrice) &&
-                    (!request.MaxPrice.HasValue || p.BasePrice <= request.MaxPrice)));
-        }
-
-        if (request.ServicePublicKeys?.Count > 0)
-        {
-            query = query.Where(e =>
-                request.ServicePublicKeys.All(reqKey =>
-                    e.EnvironmentServices.Any(es => es.Service.PublicKey == reqKey)));
-        }
-
-        if (request.Areas?.Count > 0)
-        {
-            foreach (var (areaPublicKey, minQuantity) in request.Areas)
-            {
-                query = query.Where(e =>
-                    e.EnvironmentAreas.Any(ea =>
-                        ea.Area.PublicKey == areaPublicKey && ea.Quantity >= minQuantity));
-            }
-        }
-
-        if (request.StartDate.HasValue && request.EndDate.HasValue)
-        {
-            query = query.Where(e => !e.NonAvailabilities.Any(n =>
-                n.StartDate <= request.StartDate && n.EndDate >= request.EndDate));
-        }
-
-        var totalItems = await query.CountAsync();
-
-        var environments = await query
+        var environments = await filteredQuery
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToListAsync();
@@ -94,6 +48,7 @@ public class EnvironmentRepository(DbContext context) : IEnvironmentRepository
             .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
             .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
             .Include(e => e.NonAvailabilities)
+            .Where(e => e.Deleted == false && e.Hidden == false)
             .FirstOrDefaultAsync(e => e.PublicId == publicId);
     }
 }

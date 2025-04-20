@@ -17,6 +17,7 @@ public class EnvironmentProfile : Profile
             .ForMember(dest => dest.DiscountPolicies, opt => opt.MapFrom(src => src.DiscountPolicies))
             .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment))
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+            .ForMember(dest => dest.PhotoUrls, opt => opt.MapFrom(src => src.Photos.Select(p => p.Url)))
             .ForMember(dest => dest.LastTour360Date, opt => opt.MapFrom(src =>
                 src.Tour360Requests
                     .Where(r => r.ScheduledDate.HasValue)
@@ -27,6 +28,12 @@ public class EnvironmentProfile : Profile
         CreateMap<Environment, GetAllEnvironmentDto>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.PricingPolicies, opt => opt.MapFrom(src => src.PricingPolicies))
+            .ForMember(dest => dest.PhotoUrls, opt => opt.MapFrom(src => src.Photos.Select(p => p.Url)))
+            .ForMember(dest => dest.LastTour360Date, opt => opt.MapFrom(src =>
+                src.Tour360Requests
+                    .Where(r => r.ScheduledDate.HasValue)
+                    .OrderByDescending(r => r.ScheduledDate)
+                    .FirstOrDefault()))
             .ReverseMap();
 
         CreateMap<Area, AreaDto>().ReverseMap();
