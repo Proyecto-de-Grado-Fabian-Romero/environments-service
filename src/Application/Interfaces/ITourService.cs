@@ -4,7 +4,7 @@ namespace EnvironmentsService.Src.Application.Interfaces;
 
 public interface ITourService
 {
-    Task<Tour> CreateTourAsync(List<IFormFile> files, string jsonScenes);
+    Task<Tour> CreateTourAsync(List<Scene> scenes);
 
     Task<Tour?> GetTourByIdAsync(string id);
 }

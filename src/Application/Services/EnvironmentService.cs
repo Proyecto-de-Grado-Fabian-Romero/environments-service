@@ -60,20 +60,12 @@ public class EnvironmentService(
             Quantity = a.Quantity,
         })];
 
-        // Deserialize equipment if present
         if (!string.IsNullOrWhiteSpace(dto.EquipmentJson))
         {
-            // environment.Equipment = JsonSerializer.Deserialize<any>(dto.EquipmentJson);
         }
 
-        // Handle 360 Tour
         if (dto.Request360Tour)
         {
-            // environment.Tour360Requests.Add(new Tour360Request
-            // {
-            //     RequestDate = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds(),
-            //     Status = "Pending",
-            // });
         }
 
         await _repository.AddAsync(environment);
