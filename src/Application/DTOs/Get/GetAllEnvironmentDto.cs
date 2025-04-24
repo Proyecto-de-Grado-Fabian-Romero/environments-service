@@ -31,6 +31,4 @@ public class GetAllEnvironmentDto
     public List<string> PhotoUrls { get; set; } = [];
 
     public List<PricingPolicyDto> PricingPolicies { get; set; } = [];
-
-    public long? LastTour360Date { get; set; }
 }

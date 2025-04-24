@@ -19,22 +19,12 @@ public class EnvironmentProfile : Profile
             .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment))
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.PhotoUrls, opt => opt.MapFrom(src => src.Photos.Select(p => p.Url)))
-            .ForMember(dest => dest.LastTour360Date, opt => opt.MapFrom(src =>
-                src.Tour360Requests
-                    .Where(r => r.ScheduledDate.HasValue)
-                    .OrderByDescending(r => r.ScheduledDate)
-                    .FirstOrDefault()))
             .ReverseMap();
 
         CreateMap<Environment, GetAllEnvironmentDto>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.PricingPolicies, opt => opt.MapFrom(src => src.PricingPolicies))
             .ForMember(dest => dest.PhotoUrls, opt => opt.MapFrom(src => src.Photos.Select(p => p.Url)))
-            .ForMember(dest => dest.LastTour360Date, opt => opt.MapFrom(src =>
-                src.Tour360Requests
-                    .Where(r => r.ScheduledDate.HasValue)
-                    .OrderByDescending(r => r.ScheduledDate)
-                    .FirstOrDefault()))
             .ReverseMap();
 
         CreateMap<CreateEnvironmentDto, Environment>()
@@ -44,7 +34,6 @@ public class EnvironmentProfile : Profile
            .ForMember(dest => dest.TypeId, opt => opt.Ignore())
            .ForMember(dest => dest.EnvironmentServices, opt => opt.Ignore())
            .ForMember(dest => dest.EnvironmentAreas, opt => opt.Ignore())
-           .ForMember(dest => dest.Tour360Requests, opt => opt.Ignore())
            .ForMember(dest => dest.Photos, opt => opt.Ignore())
            .ForMember(dest => dest.Equipment, opt => opt.Ignore())
            .ForMember(dest => dest.PricingPolicies, opt => opt.MapFrom(src => src.PricingPolicies))
@@ -58,7 +47,6 @@ public class EnvironmentProfile : Profile
         CreateMap<PricingPolicy, PricingPolicyDto>().ReverseMap();
         CreateMap<DiscountPolicy, DiscountPolicyDto>().ReverseMap();
         CreateMap<Service, ServiceDto>().ReverseMap();
-        CreateMap<Tour360Request, Tour360RequestDto>().ReverseMap();
         CreateMap<WeeklySchedule, WeeklyScheduleDto>().ReverseMap();
         CreateMap<SpecialAvailability, SpecialAvailabilityDto>().ReverseMap();
         CreateMap<EnvironmentArea, EnvironmentAreaDto>().ReverseMap();

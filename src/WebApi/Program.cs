@@ -23,6 +23,17 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontEnd", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
@@ -35,6 +46,7 @@ builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<IAreaRepository, AreaRepository>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<ITypeRepository, TypeRepository>();
 
 builder.Services.AddScoped<DbContext, AppDbContext>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, LocationFilterStrategy>();
@@ -50,7 +62,7 @@ builder.Services.AddScoped<EnvironmentFilterPipeline>();
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));
 
 var app = builder.Build();
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontEnd");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

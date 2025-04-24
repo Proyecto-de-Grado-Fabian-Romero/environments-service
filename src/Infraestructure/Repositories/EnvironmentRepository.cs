@@ -1,5 +1,6 @@
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
 using EnvironmentsService.Src.Application.Pipelines;
+using EnvironmentsService.Src.Domain.Entities;
 using EnvironmentsService.Src.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,6 +60,12 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
 
     public async Task SaveChangesAsync()
     {
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AddImageAsync(EnvironmentPhoto image)
+    {
+        await _context.Set<EnvironmentPhoto>().AddAsync(image);
         await _context.SaveChangesAsync();
     }
 }

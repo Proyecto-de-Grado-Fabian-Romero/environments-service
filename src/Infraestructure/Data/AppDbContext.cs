@@ -25,8 +25,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<EnvironmentArea> EnvironmentAreas { get; set; }
 
-    public DbSet<Tour360Request> Tour360Requests { get; set; }
-
     public DbSet<WeeklySchedule> WeeklySchedules { get; set; }
 
     public DbSet<SpecialAvailability> SpecialAvailabilities { get; set; }
@@ -58,12 +56,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(n => n.Environment)
             .WithMany(e => e.NonAvailabilities)
             .HasForeignKey(n => n.EnvironmentId);
-
-        // Tour360Request - Environment (1:N)
-        modelBuilder.Entity<Tour360Request>()
-            .HasOne(t => t.Environment)
-            .WithMany(e => e.Tour360Requests)
-            .HasForeignKey(t => t.EnvironmentId);
 
         // WeeklySchedule - Environment (1:N)
         modelBuilder.Entity<WeeklySchedule>()

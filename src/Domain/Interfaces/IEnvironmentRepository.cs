@@ -1,4 +1,5 @@
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
+using EnvironmentsService.Src.Domain.Entities;
 
 namespace EnvironmentsService.Src.Domain.Interfaces;
 
@@ -12,4 +13,6 @@ public interface IEnvironmentRepository
     Task AddAsync(Entities.Environment environment);
 
     Task SaveChangesAsync();
+
+    Task AddImageAsync(EnvironmentPhoto image);
 }

@@ -10,5 +10,5 @@ public interface IEnvironmentService
 
     Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId);
 
-    Task<EnvironmentDto> CreateAsync(CreateEnvironmentDto dto);
+    Task<EnvironmentDto> CreateAsync(CreateEnvironmentDto dto, Guid userId);
 }
