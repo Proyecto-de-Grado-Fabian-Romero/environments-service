@@ -8,6 +8,7 @@ using EnvironmentsService.Src.Domain.Interfaces;
 using EnvironmentsService.Src.Infraestructure.Data;
 using EnvironmentsService.Src.Infraestructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,12 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDB"));
+
+builder.Services.AddSingleton<IMongoClient>(
+    s => new MongoClient(builder.Configuration.GetSection("MongoDB:ConnectionString").Value));
+
 builder.Services.AddScoped<IEnvironmentService, EnvironmentService>();
 builder.Services.AddScoped<IEnvironmentRepository, EnvironmentRepository>();
 builder.Services.AddScoped<IAreaService, AreaService>();
@@ -58,6 +65,9 @@ builder.Services.AddScoped<IEnvironmentFilterStrategy, ServiceFilterStrategy>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, AreaFilterStrategy>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, DateAvailabilityFilterStrategy>();
 builder.Services.AddScoped<EnvironmentFilterPipeline>();
+
+builder.Services.AddScoped<ITourService, TourService>();
+builder.Services.AddScoped<ITourRepository, TourRepository>();
 
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));
 
