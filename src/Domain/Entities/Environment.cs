@@ -2,9 +2,9 @@ namespace EnvironmentsService.Src.Domain.Entities;
 
 public class Environment
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid PublicId { get; set; }
+    public Guid PublicId { get; set; } = Guid.NewGuid();
 
     required public string Title { get; set; }
 
@@ -32,7 +32,7 @@ public class Environment
 
     public int MaxRentalTime { get; set; }
 
-    required public string RentalUnit { get; set; } // "hour" or "day"
+    required public string RentalUnit { get; set; } // "Horas" or "Días"
 
     required public EnvironmentType Type { get; set; }
 
@@ -47,8 +47,6 @@ public class Environment
     public ICollection<EnvironmentService> EnvironmentServices { get; set; } = [];
 
     public ICollection<EnvironmentArea> EnvironmentAreas { get; set; } = [];
-
-    public ICollection<Tour360Request> Tour360Requests { get; set; } = [];
 
     public ICollection<WeeklySchedule> WeeklySchedules { get; set; } = [];
 

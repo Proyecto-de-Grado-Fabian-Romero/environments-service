@@ -9,7 +9,7 @@ public class InstantBookingFilterStrategy : IEnvironmentFilterStrategy
             IQueryable<Domain.Entities.Environment> query,
             GetAvailableEnvironmentsRequest request)
     {
-        if (request.InstantBookingRequired.HasValue)
+        if (request.InstantBookingRequired.HasValue && request.InstantBookingRequired.Value == true)
         {
             query = query.Where(e => e.InstantBooking == request.InstantBookingRequired);
         }

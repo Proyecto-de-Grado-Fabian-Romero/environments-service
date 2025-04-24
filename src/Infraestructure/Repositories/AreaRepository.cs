@@ -12,4 +12,11 @@ public class AreaRepository(DbContext context) : IAreaRepository
     {
         return await _context.Set<Area>().ToListAsync();
     }
+
+    public async Task<Dictionary<string, Guid>> GetIdsByPublicKeysAsync(List<string> publicKeys)
+    {
+        return await _context.Set<Area>()
+            .Where(a => publicKeys.Contains(a.PublicKey))
+            .ToDictionaryAsync(a => a.PublicKey, a => a.Id);
+    }
 }

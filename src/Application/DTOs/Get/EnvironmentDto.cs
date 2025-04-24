@@ -46,7 +46,5 @@ public class EnvironmentDto
 
     public ICollection<SpecialAvailabilityDto> SpecialAvailabilities { get; set; } = [];
 
-    public long? LastTour360Date { get; set; }
-
     public List<string> PhotoUrls { get; set; } = [];
 }
