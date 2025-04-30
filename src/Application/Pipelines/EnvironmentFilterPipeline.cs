@@ -3,14 +3,9 @@ using EnvironmentsService.Src.Application.Strategies.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Pipelines;
 
-public class EnvironmentFilterPipeline
+public class EnvironmentFilterPipeline(IEnumerable<IEnvironmentFilterStrategy> strategies)
 {
-    private readonly IEnumerable<IEnvironmentFilterStrategy> _strategies;
-
-    public EnvironmentFilterPipeline(IEnumerable<IEnvironmentFilterStrategy> strategies)
-    {
-        _strategies = strategies;
-    }
+    private readonly IEnumerable<IEnvironmentFilterStrategy> _strategies = strategies;
 
     public IQueryable<Domain.Entities.Environment> ApplyFilters(
         IQueryable<Domain.Entities.Environment> query,

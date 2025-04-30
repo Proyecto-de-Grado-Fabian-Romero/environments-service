@@ -8,6 +8,8 @@ public interface IEnvironmentService
 {
     Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request, int page, int limit);
 
+    Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit);
+
     Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId);
 
     Task<EnvironmentDto> CreateAsync(CreateEnvironmentDto dto, Guid userId);
