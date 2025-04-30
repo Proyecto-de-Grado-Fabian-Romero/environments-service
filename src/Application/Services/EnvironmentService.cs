@@ -32,6 +32,11 @@ public class EnvironmentService(
         return await command.ExecuteAsync();
     }
 
+    public Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId)
     {
         var command = new GetSingleEnvironmentCommand(_repository, _mapper, publicId);
@@ -113,14 +118,5 @@ public class EnvironmentService(
         });
 
         return results ?? [];
-    }
-
-    private class UploadResult
-    {
-        required public string FileId { get; set; }
-
-        required public string FileName { get; set; }
-
-        required public string FileUrl { get; set; }
     }
 }

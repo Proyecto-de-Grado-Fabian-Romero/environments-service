@@ -12,24 +12,28 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
     private readonly EnvironmentFilterPipeline _pipeline = pipeline;
 
     public async Task<(List<Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
-        GetAvailableEnvironmentsRequest request, int page, int limit)
+    GetAvailableEnvironmentsRequest request, int page, int limit)
     {
-        var baseQuery = _context.Set<Domain.Entities.Environment>()
-            .Include(e => e.Type)
-            .Include(e => e.PricingPolicies)
-            .Include(e => e.Photos)
-            .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
-            .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
-            .Include(e => e.NonAvailabilities)
-            .Where(e => e.Deleted == false)
-            .Where(e => e.Hidden == false)
-            .AsQueryable();
-
+        var baseQuery = GetBaseEnvironmentQuery();
         var filteredQuery = _pipeline.ApplyFilters(baseQuery, request);
 
         var totalItems = await filteredQuery.CountAsync();
-
         var environments = await filteredQuery
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync();
+
+        return (environments, totalItems);
+    }
+
+    public async Task<(List<Domain.Entities.Environment> Environments, int TotalItems)> GetOwnerEnvironmentsAsync(
+    Guid pubUserId, int page, int limit)
+    {
+        var baseQuery = GetBaseEnvironmentQuery()
+            .Where(e => e.OwnerId == pubUserId);
+
+        var totalItems = await baseQuery.CountAsync();
+        var environments = await baseQuery
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToListAsync();
@@ -39,17 +43,7 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
 
     public async Task<Domain.Entities.Environment?> GetSingleEnvironment(Guid publicId)
     {
-        return await _context.Set<Domain.Entities.Environment>()
-            .Include(e => e.Type)
-            .Include(e => e.PricingPolicies)
-            .Include(e => e.Photos)
-            .Include(e => e.DiscountPolicies)
-            .Include(e => e.WeeklySchedules)
-            .Include(e => e.SpecialAvailabilities)
-            .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
-            .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
-            .Include(e => e.NonAvailabilities)
-            .Where(e => e.Deleted == false && e.Hidden == false)
+        return await GetBaseEnvironmentQuery()
             .FirstOrDefaultAsync(e => e.PublicId == publicId);
     }
 
@@ -67,5 +61,18 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
     {
         await _context.Set<EnvironmentPhoto>().AddAsync(image);
         await _context.SaveChangesAsync();
+    }
+
+    private IQueryable<Domain.Entities.Environment> GetBaseEnvironmentQuery()
+    {
+        return _context.Set<Domain.Entities.Environment>()
+            .Include(e => e.Type)
+            .Include(e => e.PricingPolicies)
+            .Include(e => e.Photos)
+            .Include(e => e.EnvironmentServices).ThenInclude(es => es.Service)
+            .Include(e => e.EnvironmentAreas).ThenInclude(ea => ea.Area)
+            .Include(e => e.NonAvailabilities)
+            .Where(e => !e.Deleted && !e.Hidden)
+            .AsQueryable();
     }
 }

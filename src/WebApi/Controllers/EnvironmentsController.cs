@@ -21,6 +21,21 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
         return Ok(result);
     }
 
+    [HttpPost("owner")]
+    public async Task<IActionResult> GetOwnerEnvironments(
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 16)
+    {
+        var publicIdClaim = Request.Cookies["publicId"];
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        {
+            return Unauthorized("Invalid or missing user public_id" + publicIdClaim);
+        }
+
+        var result = await _service.GetOwnerEnvironmentsAsync(userPublicId, page, limit);
+        return Ok(result);
+    }
+
     [HttpGet("single")]
     public async Task<IActionResult> GetSingleEnvironment([FromQuery] Guid publicId)
     {
