@@ -21,7 +21,7 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
         return Ok(result);
     }
 
-    [HttpPost("owner")]
+    [HttpGet("owner")]
     public async Task<IActionResult> GetOwnerEnvironments(
         [FromQuery] int page = 1,
         [FromQuery] int limit = 16)

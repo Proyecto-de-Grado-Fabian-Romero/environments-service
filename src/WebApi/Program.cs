@@ -5,6 +5,7 @@ using EnvironmentsService.Src.Application.Services;
 using EnvironmentsService.Src.Application.Strategies.Concretes.GetEnvironments;
 using EnvironmentsService.Src.Application.Strategies.Interfaces;
 using EnvironmentsService.Src.Domain.Interfaces;
+using EnvironmentsService.Src.Infraestructure.Adapters;
 using EnvironmentsService.Src.Infraestructure.Data;
 using EnvironmentsService.Src.Infraestructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +69,7 @@ builder.Services.AddScoped<EnvironmentFilterPipeline>();
 
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();
+builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
 
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));
 

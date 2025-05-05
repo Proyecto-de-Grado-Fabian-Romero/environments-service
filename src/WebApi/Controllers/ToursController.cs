@@ -6,19 +6,14 @@ namespace EnvironmentsService.Src.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TourController : ControllerBase
+public class ToursController(ITourService service) : ControllerBase
 {
-    private readonly ITourService _service;
-
-    public TourController(ITourService service)
-    {
-        _service = service;
-    }
+    private readonly ITourService _service = service;
 
     [HttpPost]
-    public async Task<IActionResult> UploadTour([FromBody] TourUploadDto dto)
+    public async Task<IActionResult> UploadTour([FromQuery] Guid environmentPublicId, [FromBody] TourUploadDto dto)
     {
-        var tour = await _service.CreateTourAsync(dto.Scenes);
+        var tour = await _service.CreateTourAsync(environmentPublicId, dto.Scenes);
         return Ok(tour);
     }
 
