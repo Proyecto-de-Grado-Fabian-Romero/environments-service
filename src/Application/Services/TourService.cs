@@ -20,6 +20,7 @@ public class TourService(ITourRepository repository, IEnvironmentRepository envi
         {
             Id = Guid.NewGuid().ToString(),
             Scenes = scenes,
+            CreatedDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
         };
 
         await _repository.SaveAsync(tour);

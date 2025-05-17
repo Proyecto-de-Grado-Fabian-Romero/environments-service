@@ -30,9 +30,10 @@ public class EnvironmentService(
         return await command.ExecuteAsync();
     }
 
-    public Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit)
+    public async Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit)
     {
-        throw new NotImplementedException();
+        var command = new GetOwnerEnvironments(_repository, _mapper, publicUserId, page, limit);
+        return await command.ExecuteAsync();
     }
 
     public async Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId)
