@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using EnvironmentsService.Src.Application.Commands.Concretes;
 using EnvironmentsService.Src.Application.DTOs.Create;
@@ -30,9 +31,10 @@ public class EnvironmentService(
         return await command.ExecuteAsync();
     }
 
-    public Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit)
+    public async Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit)
     {
-        throw new NotImplementedException();
+        var command = new GetOwnerEnvironments(_repository, _mapper, publicUserId, page, limit);
+        return await command.ExecuteAsync();
     }
 
     public async Task<EnvironmentDto?> GetSingleEnvironmentAsync(Guid publicId)
@@ -54,5 +56,11 @@ public class EnvironmentService(
             _imageStorageService);
 
         return await command.ExecuteAsync();
+    }
+
+    public async Task UpdateDetectedObjectsAsync(Guid publicId, Dictionary<string, int> detectedObjects)
+    {
+        var command = new UpdateDetectedObjectsCommand(_repository, publicId, detectedObjects);
+        await command.ExecuteAsync();
     }
 }

@@ -63,6 +63,15 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
         await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateDetectedEquipmentAsync(Guid publicId, string serializedEquipment)
+    {
+        var environment = await _context.Set<Domain.Entities.Environment>()
+            .FirstOrDefaultAsync(e => e.PublicId == publicId) ?? throw new Exception("Environment not found");
+        environment.Equipment = serializedEquipment;
+
+        await _context.SaveChangesAsync();
+    }
+
     private IQueryable<Domain.Entities.Environment> GetBaseEnvironmentQuery()
     {
         return _context.Set<Domain.Entities.Environment>()

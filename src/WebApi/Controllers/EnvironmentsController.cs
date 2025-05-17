@@ -1,5 +1,6 @@
 using EnvironmentsService.Src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
+using EnvironmentsService.Src.Application.DTOs.Patch;
 using EnvironmentsService.Src.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,5 +57,19 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
 
         var result = await _service.CreateAsync(dto, userPublicId);
         return CreatedAtAction(nameof(GetSingleEnvironment), new { publicId = result!.PublicId }, result);
+    }
+
+    [HttpPatch("{publicId:guid}/detected-objects")]
+    public async Task<IActionResult> UpdateDetectedObjects(Guid publicId, [FromBody] UpdateDetectedObjectsDto dto)
+    {
+        try
+        {
+            await _service.UpdateDetectedObjectsAsync(publicId, dto.DetectedObjects);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

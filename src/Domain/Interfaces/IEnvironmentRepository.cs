@@ -18,4 +18,6 @@ public interface IEnvironmentRepository
     Task SaveChangesAsync();
 
     Task AddImageAsync(EnvironmentPhoto image);
+
+    Task UpdateDetectedEquipmentAsync(Guid publicId, string serializedEquipment);
 }
