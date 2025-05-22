@@ -1,9 +1,8 @@
-using System;
 using EnvironmentsService.Src.Domain.Entities.Booking;
 using EnvironmentsService.Src.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace EnvironmentsService.src.Infraestructure.Repositories;
+namespace EnvironmentsService.Src.Infraestructure.Repositories;
 
 public class ReservationRepository(DbContext context) : IReservationRepository
 {

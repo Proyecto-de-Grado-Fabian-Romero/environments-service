@@ -13,7 +13,6 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
-using EnvironmentsService.src.Infraestructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +73,7 @@ builder.Services.AddScoped<EnvironmentFilterPipeline>();
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
 builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
 
