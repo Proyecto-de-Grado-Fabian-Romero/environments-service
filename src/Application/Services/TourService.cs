@@ -1,13 +1,18 @@
+using System.Text.Json;
 using EnvironmentsService.Src.Application.Interfaces;
 using EnvironmentsService.Src.Domain.Entities.Tour360;
 using EnvironmentsService.Src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Services;
 
-public class TourService(ITourRepository repository, IEnvironmentRepository environmentRepository) : ITourService
+public class TourService(
+    ITourRepository repository,
+    IEnvironmentRepository environmentRepository,
+    IObjectDetectionAdapter objectDetectionAdapter) : ITourService
 {
     private readonly ITourRepository _repository = repository;
     private readonly IEnvironmentRepository _environmentRepository = environmentRepository;
+    private readonly IObjectDetectionAdapter _objectDetectionAdapter = objectDetectionAdapter;
 
     public async Task<Tour> CreateTourAsync(Guid environmentPublicId, List<Scene> scenes)
     {
@@ -29,6 +34,17 @@ public class TourService(ITourRepository repository, IEnvironmentRepository envi
 
         environment.Tour360Id = Guid.Parse(tour.Id);
         await _environmentRepository.SaveChangesAsync();
+
+        var imageUrls = scenes
+           .Where(s => !string.IsNullOrWhiteSpace(s.FileUrl))
+           .Select(s => s.FileUrl)
+           .ToList();
+
+        if (imageUrls.Count > 0)
+        {
+            var detectedObjects = await _objectDetectionAdapter.DetectFromImagesAsync(imageUrls);
+            await _environmentRepository.UpdateDetectedEquipmentAsync(environmentPublicId, JsonSerializer.Serialize(detectedObjects));
+        }
 
         return tour;
     }

@@ -4,10 +4,13 @@ using EnvironmentsService.Src.Application.Pipelines;
 using EnvironmentsService.Src.Application.Services;
 using EnvironmentsService.Src.Application.Strategies.Concretes.GetEnvironments;
 using EnvironmentsService.Src.Application.Strategies.Interfaces;
+using EnvironmentsService.src.Application.Validator;
 using EnvironmentsService.Src.Domain.Interfaces;
 using EnvironmentsService.Src.Infraestructure.Adapters;
 using EnvironmentsService.Src.Infraestructure.Data;
 using EnvironmentsService.Src.Infraestructure.Repositories;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
@@ -69,7 +72,27 @@ builder.Services.AddScoped<EnvironmentFilterPipeline>();
 
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
+builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
+builder.Services.AddScoped<IAdminServiceAdapter, AdminServiceAdapter>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateReservationRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddHttpClient<IObjectDetectionAdapter, ObjectDetectionAdapter>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5151");
+});
+builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5116");
+});
+builder.Services.AddHttpClient<IAdminServiceAdapter, AdminServiceAdapter>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5101");
+});
 
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));
 

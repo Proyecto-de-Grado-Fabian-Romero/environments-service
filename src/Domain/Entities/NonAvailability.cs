@@ -1,3 +1,5 @@
+using EnvironmentsService.Src.Domain.Entities.Booking;
+
 namespace EnvironmentsService.Src.Domain.Entities;
 
 public class NonAvailability
@@ -15,4 +17,6 @@ public class NonAvailability
     public Guid? ReservationId { get; set; }
 
     public Environment Environment { get; set; } = null!;
+
+    public Reservation? Reservation { get; set; }
 }

@@ -8,6 +8,7 @@ namespace EnvironmentsService.Src.Infraestructure.Adapters;
 public class ImageStorageServiceAdapter(HttpClient httpClient) : IImageStorageServiceAdapter
 {
     private readonly HttpClient _httpClient = httpClient;
+    private readonly string _uploadEndpoint = "/api/image/upload-multiple";
 
     public async Task<List<UploadResult>> UploadImagesAsync(List<IFormFile> files, string bucket, string folder)
     {
@@ -20,7 +21,7 @@ public class ImageStorageServiceAdapter(HttpClient httpClient) : IImageStorageSe
             content.Add(streamContent, "files", file.FileName);
         }
 
-        var url = $"http://localhost:5116/api/image/upload-multiple?bucket={bucket}&folder={folder}";
+        var url = $"{_uploadEndpoint}?bucket={bucket}&folder={folder}";
 
         var response = await _httpClient.PostAsync(url, content);
         response.EnsureSuccessStatusCode();
@@ -31,6 +32,6 @@ public class ImageStorageServiceAdapter(HttpClient httpClient) : IImageStorageSe
             PropertyNameCaseInsensitive = true,
         });
 
-        return results ?? [];
+        return results ?? new List<UploadResult>();
     }
 }
