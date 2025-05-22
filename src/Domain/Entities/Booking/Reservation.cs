@@ -22,7 +22,7 @@ public class Reservation
 
     public bool IsInstant { get; set; }
 
-    public string Status { get; set; } = "pending"; // pending | confirmed | rejected | cancelled
+    public string Status { get; set; } = "pending"; // pending | confirmed | rejected | cancelled | paid
 
     public long CreatedAt { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 

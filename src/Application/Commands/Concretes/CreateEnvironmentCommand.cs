@@ -9,14 +9,14 @@ using EnvironmentsService.Src.Domain.Interfaces;
 namespace EnvironmentsService.Src.Application.Commands.Concretes;
 
 public class CreateEnvironmentCommand(
-CreateEnvironmentDto dto,
-Guid userId,
-IEnvironmentRepository repository,
-IAreaRepository areaRepository,
-IServiceRepository serviceRepository,
-ITypeRepository typeRepository,
-IMapper mapper,
-IImageStorageServiceAdapter imageStorageService) : ICommand<EnvironmentDto>
+    CreateEnvironmentDto dto,
+    Guid userId,
+    IEnvironmentRepository repository,
+    IAreaRepository areaRepository,
+    IServiceRepository serviceRepository,
+    ITypeRepository typeRepository,
+    IMapper mapper,
+    IImageStorageServiceAdapter imageStorageService) : ICommand<EnvironmentDto>
 {
     private readonly CreateEnvironmentDto _dto = dto;
     private readonly Guid _userId = userId;
@@ -29,7 +29,7 @@ IImageStorageServiceAdapter imageStorageService) : ICommand<EnvironmentDto>
 
     public async Task<EnvironmentDto> ExecuteAsync()
     {
-        var environment = _mapper.Map<Src.Domain.Entities.Environment>(_dto);
+        var environment = _mapper.Map<Domain.Entities.Environment>(_dto);
         environment.Id = Guid.NewGuid();
         environment.OwnerId = _userId;
 
@@ -37,7 +37,7 @@ IImageStorageServiceAdapter imageStorageService) : ICommand<EnvironmentDto>
         environment.TypeId = typeId;
 
         var serviceMap = await _serviceRepository.GetIdsByPublicKeysAsync(_dto.ServicePublicKeys);
-        environment.EnvironmentServices = [.. serviceMap.Values.Select(id => new Src.Domain.Entities.EnvironmentService
+        environment.EnvironmentServices = [.. serviceMap.Values.Select(id => new EnvironmentService
         {
             ServiceId = id,
         })];
