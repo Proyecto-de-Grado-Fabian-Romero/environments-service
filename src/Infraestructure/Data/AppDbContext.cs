@@ -1,6 +1,7 @@
 namespace EnvironmentsService.Src.Infraestructure.Data;
 
 using EnvironmentsService.Src.Domain.Entities;
+using EnvironmentsService.Src.Domain.Entities.Booking;
 using Microsoft.EntityFrameworkCore;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
@@ -28,6 +29,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<WeeklySchedule> WeeklySchedules { get; set; }
 
     public DbSet<SpecialAvailability> SpecialAvailabilities { get; set; }
+
+    public DbSet<Reservation> Reservations { get; set; }
+
+    public DbSet<ReservationPayment> ReservationPayments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,5 +101,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(ea => ea.Area)
             .WithMany(a => a.EnvironmentAreas)
             .HasForeignKey(ea => ea.AreaId);
+
+        // Reservation - Environment (1:N)
+        modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.Environment)
+            .WithMany(e => e.Reservations)
+            .HasForeignKey(r => r.EnvironmentId);
+
+        // Reservation - ReservationPayments (1:N)
+        modelBuilder.Entity<ReservationPayment>()
+            .HasOne(p => p.Reservation)
+            .WithMany(r => r.Payments)
+            .HasForeignKey(p => p.ReservationRequestId);
+
+        // Reservation - NonAvailability (1:N) → created blockings per reservation
+        modelBuilder.Entity<NonAvailability>()
+            .HasOne(n => n.Reservation)
+            .WithMany(r => r.BlockedSlots)
+            .HasForeignKey(n => n.ReservationId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Environment>()
+        .Ignore(e => e.Deleted);
     }
 }

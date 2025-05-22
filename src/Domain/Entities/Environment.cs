@@ -1,3 +1,5 @@
+using EnvironmentsService.Src.Domain.Entities.Booking;
+
 namespace EnvironmentsService.Src.Domain.Entities;
 
 public class Environment
@@ -52,7 +54,9 @@ public class Environment
 
     public ICollection<SpecialAvailability> SpecialAvailabilities { get; set; } = [];
 
-    public bool Deleted { get; set; }
+    public ICollection<Reservation> Reservations { get; set; } = [];
 
-    public bool Hidden { get; set; }
+    public bool Deleted { get; set; } = false;
+
+    public bool Hidden { get; set; } = false;
 }
