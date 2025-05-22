@@ -70,6 +70,12 @@ builder.Services.AddScoped<EnvironmentFilterPipeline>();
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
+builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
+
+builder.Services.AddHttpClient<IObjectDetectionAdapter, ObjectDetectionAdapter>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5151");
+});
 
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));
 
