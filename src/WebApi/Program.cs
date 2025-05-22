@@ -76,6 +76,7 @@ builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
 builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
+builder.Services.AddScoped<IAdminServiceAdapter, AdminServiceAdapter>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateReservationRequestValidator>();
 builder.Services.AddFluentValidationAutoValidation();
@@ -83,6 +84,14 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddHttpClient<IObjectDetectionAdapter, ObjectDetectionAdapter>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5151");
+});
+builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5116");
+});
+builder.Services.AddHttpClient<IAdminServiceAdapter, AdminServiceAdapter>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5101");
 });
 
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));

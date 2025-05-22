@@ -14,19 +14,25 @@ public class CreateReservationCommand(
     IMapper mapper
 ) : ICommand<ReservationResponse>
 {
+    private readonly IEnvironmentRepository _environmentRepo = environmentRepo;
+    private readonly IReservationRepository _reservationRepo = reservationRepo;
+    private readonly IMapper _mapper = mapper;
+
     public async Task<ReservationResponse> ExecuteAsync()
     {
-        var environment = await environmentRepo.GetSingleEnvironment(request.EnvironmentId)
+        using var transaction = await _reservationRepo.BeginTransactionAsync();
+
+        var environment = await _environmentRepo.GetSingleEnvironment(request.EnvironmentId)
             ?? throw new Exception("El entorno no existe.");
 
-        bool isOverlapping = environment.Reservations.Any(r =>
-            r.Status != "cancelled" &&
-            request.StartDate < r.EndDate &&
-            request.EndDate > r.StartDate);
+        bool isOverlapping = await _reservationRepo.ExistsOverlappingReservationAsync(
+            environment.Id,
+            request.StartDate,
+            request.EndDate);
 
         if (isOverlapping)
         {
-            throw new Exception("El entorno ya está reservado en ese rango de fechas.");
+            throw new Exception("El entorno ya tiene una reserva en ese rango de fechas.");
         }
 
         var reservation = new Reservation
@@ -52,9 +58,11 @@ public class CreateReservationCommand(
             ],
         };
 
-        await reservationRepo.AddAsync(reservation);
-        await reservationRepo.SaveChangesAsync();
+        await _reservationRepo.AddAsync(reservation);
+        await _reservationRepo.SaveChangesAsync();
 
-        return mapper.Map<ReservationResponse>(reservation);
+        await transaction.CommitAsync();
+
+        return _mapper.Map<ReservationResponse>(reservation);
     }
 }

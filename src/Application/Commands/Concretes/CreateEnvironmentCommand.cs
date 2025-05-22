@@ -16,7 +16,8 @@ public class CreateEnvironmentCommand(
     IServiceRepository serviceRepository,
     ITypeRepository typeRepository,
     IMapper mapper,
-    IImageStorageServiceAdapter imageStorageService) : ICommand<EnvironmentDto>
+    IImageStorageServiceAdapter imageStorageService,
+    IAdminServiceAdapter adminServiceAdapter) : ICommand<EnvironmentDto>
 {
     private readonly CreateEnvironmentDto _dto = dto;
     private readonly Guid _userId = userId;
@@ -26,6 +27,7 @@ public class CreateEnvironmentCommand(
     private readonly ITypeRepository _typeRepository = typeRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IImageStorageServiceAdapter _imageStorageService = imageStorageService;
+    private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
 
     public async Task<EnvironmentDto> ExecuteAsync()
     {
@@ -57,7 +59,7 @@ public class CreateEnvironmentCommand(
 
         if (_dto.Request360Tour)
         {
-            // TODO: Optional - maybe trigger a 360 tour creation later
+            await _adminServiceAdapter.RequestTourAsync(environment.PublicId, _userId);
         }
 
         await _repository.AddAsync(environment);

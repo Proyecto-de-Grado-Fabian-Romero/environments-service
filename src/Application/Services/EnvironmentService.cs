@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AutoMapper;
 using EnvironmentsService.Src.Application.Commands.Concretes;
 using EnvironmentsService.Src.Application.DTOs.Create;
@@ -15,6 +14,7 @@ public class EnvironmentService(
     IServiceRepository serviceRepository,
     ITypeRepository typeRepository,
     IImageStorageServiceAdapter imageStorageService,
+    IAdminServiceAdapter adminServiceAdapter,
     IMapper mapper
 ) : IEnvironmentService
 {
@@ -24,6 +24,7 @@ public class EnvironmentService(
     private readonly ITypeRepository _typeRepository = typeRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IImageStorageServiceAdapter _imageStorageService = imageStorageService;
+    private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
 
     public async Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request, int page, int limit)
     {
@@ -53,7 +54,8 @@ public class EnvironmentService(
             _serviceRepository,
             _typeRepository,
             _mapper,
-            _imageStorageService);
+            _imageStorageService,
+            _adminServiceAdapter);
 
         return await command.ExecuteAsync();
     }
