@@ -3,7 +3,9 @@ namespace EnvironmentsService.Src.Application.Mapping;
 using AutoMapper;
 using EnvironmentsService.Src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Get;
+using EnvironmentsService.Src.Application.DTOs.Responses;
 using EnvironmentsService.Src.Domain.Entities;
+using EnvironmentsService.Src.Domain.Entities.Booking;
 
 public class EnvironmentProfile : Profile
 {
@@ -50,5 +52,6 @@ public class EnvironmentProfile : Profile
         CreateMap<WeeklySchedule, WeeklyScheduleDto>().ReverseMap();
         CreateMap<SpecialAvailability, SpecialAvailabilityDto>().ReverseMap();
         CreateMap<EnvironmentArea, EnvironmentAreaDto>().ReverseMap();
+        CreateMap<Reservation, ReservationResponse>();
     }
 }
