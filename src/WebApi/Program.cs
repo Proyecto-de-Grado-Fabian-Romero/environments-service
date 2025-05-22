@@ -4,12 +4,16 @@ using EnvironmentsService.Src.Application.Pipelines;
 using EnvironmentsService.Src.Application.Services;
 using EnvironmentsService.Src.Application.Strategies.Concretes.GetEnvironments;
 using EnvironmentsService.Src.Application.Strategies.Interfaces;
+using EnvironmentsService.src.Application.Validator;
 using EnvironmentsService.Src.Domain.Interfaces;
 using EnvironmentsService.Src.Infraestructure.Adapters;
 using EnvironmentsService.Src.Infraestructure.Data;
 using EnvironmentsService.Src.Infraestructure.Repositories;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using EnvironmentsService.src.Infraestructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,8 +73,12 @@ builder.Services.AddScoped<EnvironmentFilterPipeline>();
 
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
 builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateReservationRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 
 builder.Services.AddHttpClient<IObjectDetectionAdapter, ObjectDetectionAdapter>(client =>
 {
