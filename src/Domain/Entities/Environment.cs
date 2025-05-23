@@ -22,7 +22,7 @@ public class Environment
 
     public decimal Longitude { get; set; }
 
-    required public string Equipment { get; set; }
+    required public string Equipment { get; set; } = "{}";
 
     public Guid? Tour360Id { get; set; }
 

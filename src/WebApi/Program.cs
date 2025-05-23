@@ -74,7 +74,10 @@ builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
+builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+
+builder.Services.AddScoped<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
 builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
 builder.Services.AddScoped<IAdminServiceAdapter, AdminServiceAdapter>();
 

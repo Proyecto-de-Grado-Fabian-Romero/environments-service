@@ -12,7 +12,7 @@ public class NonAvailability
 
     public long EndDate { get; set; }
 
-    public string Type { get; set; } = "OwnerBlocked"; // "Reservation"
+    public string Type { get; set; } = "Reservation"; // "OwnerBlocked"
 
     public Guid? ReservationId { get; set; }
 
