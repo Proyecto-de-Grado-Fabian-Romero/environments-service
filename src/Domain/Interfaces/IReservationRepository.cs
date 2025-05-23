@@ -11,5 +11,7 @@ public interface IReservationRepository
 
     Task<bool> ExistsOverlappingReservationAsync(Guid environmentId, long start, long end);
 
+    Task<List<Reservation>> GetActiveReservationsByRenterAsync(Guid renterId);
+
     Task SaveChangesAsync();
 }

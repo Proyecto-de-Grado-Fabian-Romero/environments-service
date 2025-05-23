@@ -32,4 +32,15 @@ public class ReservationRepository(DbContext context) : IReservationRepository
                 start < r.EndDate &&
                 end > r.StartDate).AnyAsync();
     }
+
+    public async Task<List<Reservation>> GetActiveReservationsByRenterAsync(Guid renterId)
+    {
+        return await _context.Set<Reservation>()
+            .Where(r =>
+                r.RenterId == renterId &&
+                r.Status != "cancelled" &&
+                r.Status != "rejected")
+            .Include(r => r.Environment)
+            .ToListAsync();
+    }
 }
