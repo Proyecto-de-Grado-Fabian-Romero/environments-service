@@ -8,6 +8,10 @@ public class ReservationResponse
 
     public Guid EnvironmentId { get; set; }
 
+    public string EnvironmentTitle { get; set; } = string.Empty;
+
+    public string? EnvironmentPhotoUrl { get; set; }
+
     public Guid RenterId { get; set; }
 
     public List<TimeRangeDto> TimeRanges { get; set; } = [];

@@ -14,4 +14,6 @@ public interface IReservationRepository
     Task<List<Reservation>> GetActiveReservationsByRenterAsync(Guid renterId);
 
     Task SaveChangesAsync();
+
+    Task<List<Reservation>> GetByUserAsync(Guid userPublicId);
 }

@@ -6,4 +6,6 @@ namespace EnvironmentsService.Src.Application.Interfaces;
 public interface IReservationService
 {
     Task<ReservationResponse> CreateAsync(CreateReservationRequest request, Guid renterId);
+
+    Task<List<ReservationResponse>> GetByUserAsync(Guid userPublicId);
 }

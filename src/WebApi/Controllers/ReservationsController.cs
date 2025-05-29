@@ -30,4 +30,25 @@ public class ReservationsController(IReservationService service) : ControllerBas
             return BadRequest(new { mensaje = ex.Message });
         }
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMyReservations()
+    {
+        var publicIdClaim = Request.Cookies["publicId"];
+
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        {
+            return Unauthorized("Invalid or missing user public_id: " + publicIdClaim);
+        }
+
+        try
+        {
+            var response = await _service.GetByUserAsync(userPublicId);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
 }

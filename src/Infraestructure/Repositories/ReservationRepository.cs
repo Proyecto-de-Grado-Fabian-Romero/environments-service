@@ -47,4 +47,14 @@ public class ReservationRepository(DbContext context) : IReservationRepository
                 r.Status != "rejected")
             .ToListAsync();
     }
+
+    public async Task<List<Reservation>> GetByUserAsync(Guid userPublicId)
+    {
+        return await _context.Set<Reservation>()
+            .Include(r => r.Environment)
+            .Where(r =>
+                r.RenterId == userPublicId ||
+                r.OwnerId == userPublicId)
+            .ToListAsync();
+    }
 }

@@ -56,7 +56,11 @@ public class EnvironmentProfile : Profile
 
         CreateMap<ReservationTimeRange, TimeRangeDto>().ReverseMap();
         CreateMap<Reservation, ReservationResponse>()
+            .ForMember(dest => dest.EnvironmentTitle, opt => opt.MapFrom(src => src.Environment.Title))
+            .ForMember(dest => dest.EnvironmentPhotoUrl, opt => opt.MapFrom(src =>
+                src.Environment.Photos.OrderBy(p => p.Order).Select(p => p.Url).FirstOrDefault()))
             .ForMember(dest => dest.TimeRanges, opt => opt.MapFrom(src => src.TimeRanges));
+
         CreateMap<CreateReservationRequest, CreateReservationDto>()
             .ForMember(dest => dest.RenterId, opt => opt.Ignore());
     }

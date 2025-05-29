@@ -23,4 +23,10 @@ public class ReservationService(
         var command = new CreateReservationCommand(dto, _envRepo, _resRepo, _mapper);
         return await command.ExecuteAsync();
     }
+
+    public async Task<List<ReservationResponse>> GetByUserAsync(Guid userPublicId)
+    {
+        var reservations = await _resRepo.GetByUserAsync(userPublicId);
+        return _mapper.Map<List<ReservationResponse>>(reservations);
+    }
 }
