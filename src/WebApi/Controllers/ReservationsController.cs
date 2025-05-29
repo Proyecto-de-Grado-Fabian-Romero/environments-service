@@ -31,24 +31,20 @@ public class ReservationsController(IReservationService service) : ControllerBas
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetMyReservations()
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetUserReservations(
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int limit = 10)
     {
         var publicIdClaim = Request.Cookies["publicId"];
 
         if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
         {
-            return Unauthorized("Invalid or missing user public_id: " + publicIdClaim);
+            return Unauthorized("Invalid or missing user public_id");
         }
 
-        try
-        {
-            var response = await _service.GetByUserAsync(userPublicId);
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { mensaje = ex.Message });
-        }
+        var result = await _service.GetByUserAsync(userPublicId, status, page, limit);
+        return Ok(result);
     }
 }

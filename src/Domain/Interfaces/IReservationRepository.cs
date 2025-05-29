@@ -16,4 +16,6 @@ public interface IReservationRepository
     Task SaveChangesAsync();
 
     Task<List<Reservation>> GetByUserAsync(Guid userPublicId);
+
+    IQueryable<Reservation> Query();
 }

@@ -57,4 +57,9 @@ public class ReservationRepository(DbContext context) : IReservationRepository
                 r.OwnerId == userPublicId)
             .ToListAsync();
     }
+
+    public IQueryable<Reservation> Query()
+    {
+        return _context.Set<Reservation>().AsQueryable();
+    }
 }
