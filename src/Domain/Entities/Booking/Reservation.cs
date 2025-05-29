@@ -12,9 +12,7 @@ public class Reservation
 
     public Guid OwnerId { get; set; }
 
-    public long StartDate { get; set; }
-
-    public long EndDate { get; set; }
+    public ICollection<ReservationTimeRange> TimeRanges { get; set; } = [];
 
     public decimal TotalPrice { get; set; }
 

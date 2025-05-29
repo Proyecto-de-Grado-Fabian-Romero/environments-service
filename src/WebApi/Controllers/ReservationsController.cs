@@ -13,14 +13,38 @@ public class ReservationsController(IReservationService service) : ControllerBas
     [HttpPost]
     public async Task<IActionResult> CreateReservation([FromBody] CreateReservationRequest request)
     {
+        var publicIdClaim = Request.Cookies["publicId"];
+
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        {
+            return Unauthorized("Invalid or missing user public_id: " + publicIdClaim);
+        }
+
         try
         {
-            var response = await _service.CreateAsync(request);
+            var response = await _service.CreateAsync(request, userPublicId);
             return Ok(response);
         }
         catch (Exception ex)
         {
             return BadRequest(new { mensaje = ex.Message });
         }
+    }
+
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetUserReservations(
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int limit = 10)
+    {
+        var publicIdClaim = Request.Cookies["publicId"];
+
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        {
+            return Unauthorized("Invalid or missing user public_id");
+        }
+
+        var result = await _service.GetByUserAsync(userPublicId, status, page, limit);
+        return Ok(result);
     }
 }

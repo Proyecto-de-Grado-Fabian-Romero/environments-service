@@ -4,7 +4,7 @@ using EnvironmentsService.Src.Application.Pipelines;
 using EnvironmentsService.Src.Application.Services;
 using EnvironmentsService.Src.Application.Strategies.Concretes.GetEnvironments;
 using EnvironmentsService.Src.Application.Strategies.Interfaces;
-using EnvironmentsService.src.Application.Validator;
+using EnvironmentsService.Src.Application.Validator;
 using EnvironmentsService.Src.Domain.Interfaces;
 using EnvironmentsService.Src.Infraestructure.Adapters;
 using EnvironmentsService.Src.Infraestructure.Data;
@@ -87,6 +87,7 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddHttpClient<IObjectDetectionAdapter, ObjectDetectionAdapter>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5151");
+    client.Timeout = TimeSpan.FromMinutes(10);
 });
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>(client =>
 {

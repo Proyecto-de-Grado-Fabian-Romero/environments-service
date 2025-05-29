@@ -1,3 +1,4 @@
+using System.Text.Json;
 using EnvironmentsService.Src.Application.DTOs.Get;
 
 namespace EnvironmentsService.Src.Application.DTOs.Create;
@@ -16,7 +17,7 @@ public class CreateEnvironmentDto
 
     required public string TypePublicKey { get; set; }
 
-    public List<string> ServicePublicKeys { get; set; } = [];
+    required public string RentalUnit { get; set; }
 
     public int Capacity { get; set; }
 
@@ -26,19 +27,46 @@ public class CreateEnvironmentDto
 
     public int MaxRentalTime { get; set; }
 
-    required public string RentalUnit { get; set; } // "Horas" or "Días"
+    public bool Request360Tour { get; set; }
 
-    public List<AreaQuantityDto> Areas { get; set; } = [];
-
+    // Archivos
     public List<IFormFile> Images { get; set; } = [];
 
-    required public string? EquipmentJson { get; set; }
+    // JSON crudo que llegará como string desde FormData
+    public string? EquipmentJson { get; set; }
 
-    public List<PricingPolicyDto> PricingPolicies { get; set; } = [];
+    public string? PricingPoliciesJson { get; set; }
 
-    public List<DiscountPolicyDto> DiscountPolicies { get; set; } = [];
+    public string? DiscountPoliciesJson { get; set; }
 
-    public List<WeeklyScheduleDto> WeeklySchedules { get; set; } = [];
+    public string? WeeklySchedulesJson { get; set; }
 
-    public bool Request360Tour { get; set; }
+    public string? AreasJson { get; set; }
+
+    public string? ServicePublicKeysJson { get; set; }
+
+    public List<PricingPolicyDto> PricingPolicies =>
+        string.IsNullOrWhiteSpace(PricingPoliciesJson)
+            ? []
+            : JsonSerializer.Deserialize<List<PricingPolicyDto>>(PricingPoliciesJson)!;
+
+    public List<DiscountPolicyDto> DiscountPolicies =>
+        string.IsNullOrWhiteSpace(DiscountPoliciesJson)
+            ? []
+            : JsonSerializer.Deserialize<List<DiscountPolicyDto>>(DiscountPoliciesJson)!;
+
+    public List<WeeklyScheduleDto> WeeklySchedules =>
+        string.IsNullOrWhiteSpace(WeeklySchedulesJson)
+            ? []
+            : JsonSerializer.Deserialize<List<WeeklyScheduleDto>>(WeeklySchedulesJson)!;
+
+    public List<AreaQuantityDto> Areas =>
+        string.IsNullOrWhiteSpace(AreasJson)
+            ? []
+            : JsonSerializer.Deserialize<List<AreaQuantityDto>>(AreasJson)!;
+
+    public List<string> ServicePublicKeys =>
+        string.IsNullOrWhiteSpace(ServicePublicKeysJson)
+            ? []
+            : JsonSerializer.Deserialize<List<string>>(ServicePublicKeysJson)!;
 }

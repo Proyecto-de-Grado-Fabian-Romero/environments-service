@@ -24,16 +24,18 @@ public class AvailabilityRepository(AppDbContext context) : IAvailabilityReposit
 
     public async Task<IEnumerable<Reservation>> GetReservationsAsync(Guid environmentId, DateTime start, DateTime end)
     {
-        var startUnix = new DateTimeOffset(start).ToUnixTimeSeconds();
-        var endUnix = new DateTimeOffset(end).ToUnixTimeSeconds();
+        var startUnix = new DateTimeOffset(start).ToUnixTimeMilliseconds();
+        var endUnix = new DateTimeOffset(end).ToUnixTimeMilliseconds();
 
         var excludedStatuses = new[] { "rejected", "cancelled" };
 
         return await _context.Reservations
+            .Include(r => r.TimeRanges)
             .Where(r => r.EnvironmentId == environmentId &&
-                        r.StartDate <= endUnix &&
-                        r.EndDate >= startUnix &&
-                        !excludedStatuses.Contains(r.Status))
+                        !excludedStatuses.Contains(r.Status) &&
+                        r.TimeRanges.Any(tr =>
+                            tr.StartDate < endUnix &&
+                            tr.EndDate > startUnix))
             .ToListAsync();
     }
 }
