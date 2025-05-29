@@ -8,142 +8,143 @@ using EnvironmentsService.Src.Domain.Entities.Booking;
 using EnvironmentsService.Src.Domain.Interfaces;
 
 public class CreateReservationCommand(
-    CreateReservationRequest request,
+    CreateReservationDto request,
     IEnvironmentRepository environmentRepo,
     IReservationRepository reservationRepo,
     IMapper mapper
 ) : ICommand<ReservationResponse>
 {
     private readonly IEnvironmentRepository _environmentRepo = environmentRepo;
+    private readonly IReservationRepository _reservationRepo = reservationRepo;
     private readonly IMapper _mapper = mapper;
 
     public async Task<ReservationResponse> ExecuteAsync()
     {
-        using var transaction = await reservationRepo.BeginTransactionAsync();
+        using var transaction = await _reservationRepo.BeginTransactionAsync();
 
         var environment = await _environmentRepo.GetSingleEnvironment(request.EnvironmentId)
             ?? throw new Exception("El entorno no existe.");
 
-        bool isOverlapping = await reservationRepo.ExistsOverlappingReservationAsync(
-            environment.Id,
-            request.StartDate,
-            request.EndDate);
-
-        if (isOverlapping)
+        foreach (var range in request.TimeRanges)
         {
-            throw new Exception("El entorno ya tiene una reserva en ese rango de fechas.");
-        }
+            bool isOverlapping = await _reservationRepo.ExistsOverlappingReservationAsync(
+                environment.Id,
+                range.StartDate,
+                range.EndDate);
 
-        var startDateTime = DateTimeOffset.FromUnixTimeMilliseconds(request.StartDate).DateTime;
-        var endDateTime = DateTimeOffset.FromUnixTimeMilliseconds(request.EndDate).DateTime;
-
-        for (var date = startDateTime.Date; date <= endDateTime.Date; date = date.AddDays(1))
-        {
-            var special = environment.SpecialAvailabilities.FirstOrDefault(sa => sa.Date.Date == date.Date);
-
-            if (special != null)
+            if (isOverlapping)
             {
-                if (!special.IsAvailable)
-                {
-                    throw new Exception($"El entorno no está disponible el {date:yyyy-MM-dd}.");
-                }
-
-                var resStart = date == startDateTime.Date ? startDateTime.TimeOfDay.TotalMilliseconds : 0;
-                var resEnd = date == endDateTime.Date ? endDateTime.TimeOfDay.TotalMilliseconds : 86400000;
-
-                if (resStart < special.StartTime || resEnd > special.EndTime)
-                {
-                    throw new Exception($"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMilliseconds(special.StartTime)} y {TimeSpan.FromMilliseconds(special.EndTime)}.");
-                }
+                throw new Exception("Ya hay una reserva que se superpone con el rango solicitado.");
             }
-            else
-            {
-                var dayOfWeek = (int)date.DayOfWeek;
-                var weekly = environment.WeeklySchedules.FirstOrDefault(ws => ws.DayOfWeek == dayOfWeek);
-                if (weekly == null)
-                {
-                    throw new Exception($"El entorno no está disponible el día {date:dddd}.");
-                }
 
+            var startDateTime = DateTimeOffset.FromUnixTimeMilliseconds(range.StartDate).DateTime;
+            var endDateTime = DateTimeOffset.FromUnixTimeMilliseconds(range.EndDate).DateTime;
+
+            for (var date = startDateTime.Date; date <= endDateTime.Date; date = date.AddDays(1))
+            {
                 var resStart = date == startDateTime.Date ? startDateTime.TimeOfDay.TotalMilliseconds : 0;
                 var resEnd = date == endDateTime.Date ? endDateTime.TimeOfDay.TotalMilliseconds : 86400000;
 
-                if (resStart < weekly.StartTime || resEnd > weekly.EndTime)
+                var special = environment.SpecialAvailabilities.FirstOrDefault(sa => sa.Date.Date == date.Date);
+                if (special != null)
                 {
-                    throw new Exception($"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMilliseconds(weekly.StartTime)} y {TimeSpan.FromMilliseconds(weekly.EndTime)}.");
+                    if (!special.IsAvailable)
+                    {
+                        throw new Exception($"El entorno no está disponible el {date:yyyy-MM-dd}.");
+                    }
+
+                    if (resStart < special.StartTime || resEnd > special.EndTime)
+                    {
+                        throw new Exception($"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMilliseconds(special.StartTime)} y {TimeSpan.FromMilliseconds(special.EndTime)}.");
+                    }
+                }
+                else if (environment.RentalUnit == "Horas")
+                {
+                    var dayOfWeek = (int)date.DayOfWeek;
+                    var weekly = environment.WeeklySchedules.FirstOrDefault(ws => ws.DayOfWeek == dayOfWeek)
+                        ?? throw new Exception($"El entorno no está disponible el día {date:dddd}.");
+
+                    if (resStart < weekly.StartTime || resEnd > weekly.EndTime)
+                    {
+                        throw new Exception($"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMilliseconds(weekly.StartTime)} y {TimeSpan.FromMilliseconds(weekly.EndTime)}.");
+                    }
                 }
             }
         }
 
-        var reservations = await reservationRepo.GetActiveReservationsByRenterAsync(request.RenterId);
-
+        // Verificar límite de tiempo total
+        var existingReservations = await _reservationRepo.GetActiveReservationsByRenterAsync(request.RenterId);
         int totalTimeUnits = 0;
 
-        foreach (var res in reservations)
+        foreach (var res in existingReservations)
         {
-            var resStart = DateTimeOffset.FromUnixTimeMilliseconds(res.StartDate).UtcDateTime;
-            var resEnd = DateTimeOffset.FromUnixTimeMilliseconds(res.EndDate).UtcDateTime;
-
-            var newStartDt = DateTimeOffset.FromUnixTimeMilliseconds(request.StartDate).UtcDateTime;
-            var newEndDt = DateTimeOffset.FromUnixTimeMilliseconds(request.EndDate).UtcDateTime;
-
-            if (newStartDt < resEnd && newEndDt > resStart)
+            foreach (var range in res.TimeRanges)
             {
-                var duration = resEnd - resStart;
-                if (res.Environment.RentalUnit == "Días")
+                var resStart = DateTimeOffset.FromUnixTimeMilliseconds(range.StartDate).UtcDateTime;
+                var resEnd = DateTimeOffset.FromUnixTimeMilliseconds(range.EndDate).UtcDateTime;
+
+                foreach (var newRange in request.TimeRanges)
                 {
-                    totalTimeUnits += (int)Math.Ceiling(duration.TotalDays);
-                }
-                else
-                {
-                    totalTimeUnits += (int)Math.Ceiling(duration.TotalHours);
+                    var newStart = DateTimeOffset.FromUnixTimeMilliseconds(newRange.StartDate).UtcDateTime;
+                    var newEnd = DateTimeOffset.FromUnixTimeMilliseconds(newRange.EndDate).UtcDateTime;
+
+                    if (newStart < resEnd && newEnd > resStart)
+                    {
+                        var duration = resEnd - resStart;
+                        totalTimeUnits += environment.RentalUnit == "Días"
+                            ? (int)Math.Ceiling(duration.TotalDays)
+                            : (int)Math.Ceiling(duration.TotalHours);
+                    }
                 }
             }
         }
 
-        var newDuration = DateTimeOffset.FromUnixTimeMilliseconds(request.EndDate).UtcDateTime
-                        - DateTimeOffset.FromUnixTimeMilliseconds(request.StartDate).UtcDateTime;
+        foreach (var range in request.TimeRanges)
+        {
+            var duration = DateTimeOffset.FromUnixTimeMilliseconds(range.EndDate).UtcDateTime
+                         - DateTimeOffset.FromUnixTimeMilliseconds(range.StartDate).UtcDateTime;
 
-        if (environment.RentalUnit == "Días")
-        {
-            totalTimeUnits += (int)Math.Ceiling(newDuration.TotalDays);
-        }
-        else
-        {
-            totalTimeUnits += (int)Math.Ceiling(newDuration.TotalHours);
+            totalTimeUnits += environment.RentalUnit == "Días"
+                ? (int)Math.Ceiling(duration.TotalDays)
+                : (int)Math.Ceiling(duration.TotalHours);
         }
 
         if (totalTimeUnits > 5)
         {
-            throw new Exception("No puedes tener más de 5 unidades de tiempo reservadas al mismo tiempo.");
+            throw new Exception("No puedes tener más de 5 unidades de tiempo reservadas activas.");
         }
 
+        // Crear reserva con time ranges
         var reservation = new Reservation
         {
             EnvironmentId = environment.Id,
             OwnerId = environment.OwnerId,
             RenterId = request.RenterId,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
             IsInstant = environment.InstantBooking,
             Status = environment.InstantBooking ? "confirmed" : "pending",
             CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-            Payments =
-            [
+            Currency = request.Currency,
+            TotalPrice = request.TotalPrice,
+            Payments = [
                 new ReservationPayment
                 {
-                    Amount = 100,
-                    Currency = "BOB",
+                    Amount = request.TotalPrice,
+                    Currency = request.Currency,
                     Method = "QR",
                     Status = "paid",
                     PaidAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                },
+                }
+
             ],
+            TimeRanges = [.. request.TimeRanges.Select(tr => new ReservationTimeRange
+            {
+                StartDate = tr.StartDate,
+                EndDate = tr.EndDate,
+            })],
         };
 
-        await reservationRepo.AddAsync(reservation);
-        await reservationRepo.SaveChangesAsync();
-
+        await _reservationRepo.AddAsync(reservation);
+        await _reservationRepo.SaveChangesAsync();
         await transaction.CommitAsync();
 
         return _mapper.Map<ReservationResponse>(reservation);

@@ -34,6 +34,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<ReservationPayment> ReservationPayments { get; set; }
 
+    public DbSet<ReservationTimeRange> ReservationTimeRanges { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -121,7 +123,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(n => n.ReservationId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<Environment>()
-        .Ignore(e => e.Deleted);
+        // Reservation - ReservationTimeRange (1:N)
+        modelBuilder.Entity<ReservationTimeRange>()
+            .HasOne(rtr => rtr.Reservation)
+            .WithMany(r => r.TimeRanges)
+            .HasForeignKey(rtr => rtr.ReservationId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

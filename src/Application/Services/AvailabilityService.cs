@@ -10,8 +10,8 @@ public class AvailabilityService(IAvailabilityRepository availabilityRepo) : IAv
 
     public async Task<List<TimeRange>> GetUnavailableTimeSlotsAsync(Guid envId, long startTimestamp, long endTimestamp)
     {
-        var start = DateTimeOffset.FromUnixTimeSeconds(startTimestamp).UtcDateTime;
-        var end = DateTimeOffset.FromUnixTimeSeconds(endTimestamp).UtcDateTime;
+        var start = DateTimeOffset.FromUnixTimeMilliseconds(startTimestamp).UtcDateTime;
+        var end = DateTimeOffset.FromUnixTimeMilliseconds(endTimestamp).UtcDateTime;
 
         var nonAvailabilities = await _availabilityRepo.GetNonAvailabilitiesAsync(envId, start, end);
         var reservations = await _availabilityRepo.GetReservationsAsync(envId, start, end);
@@ -21,8 +21,9 @@ public class AvailabilityService(IAvailabilityRepository availabilityRepo) : IAv
         allRanges.AddRange(nonAvailabilities.Select(n =>
             new TimeRange(n.StartDate, n.EndDate)));
 
-        allRanges.AddRange(reservations.Select(r =>
-            new TimeRange(r.StartDate, r.EndDate)));
+        allRanges.AddRange(reservations
+            .SelectMany(r => r.TimeRanges)
+            .Select(tr => new TimeRange(tr.StartDate, tr.EndDate)));
 
         return allRanges;
     }

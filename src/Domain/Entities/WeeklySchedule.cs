@@ -8,7 +8,7 @@ public class WeeklySchedule
 
     public int DayOfWeek { get; set; }
 
-    public long StartTime { get; set; }
+    public long StartTime { get; set; } // In minutes
 
     public long EndTime { get; set; }
 

@@ -1,8 +1,10 @@
 namespace EnvironmentsService.Src.Application.DTOs.Create;
 
-public class CreateReservationRequest
+public class CreateReservationDto
 {
     public Guid EnvironmentId { get; set; }
+
+    public Guid RenterId { get; set; }
 
     public List<TimeRangeDto> TimeRanges { get; set; } = [];
 

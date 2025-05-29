@@ -44,13 +44,41 @@ public class CreateEnvironmentCommand(
             ServiceId = id,
         })];
 
-        var areaKeys = _dto.Areas.Select(a => a.AreaPublicKey).ToList();
-        var areaMap = await _areaRepository.GetIdsByPublicKeysAsync(areaKeys);
-        environment.EnvironmentAreas = [.. _dto.Areas.Select(a => new EnvironmentArea
+        if (_dto.Areas != null)
         {
-            AreaId = areaMap[a.AreaPublicKey],
-            Quantity = a.Quantity,
-        })];
+            var areaKeys = _dto.Areas.Select(a => a.AreaPublicKey).ToList();
+            var areaMap = await _areaRepository.GetIdsByPublicKeysAsync(areaKeys);
+            environment.EnvironmentAreas = [.. _dto.Areas.Select(a => new EnvironmentArea
+                {
+                    AreaId = areaMap[a.AreaPublicKey],
+                    Quantity = a.Quantity,
+                })];
+        }
+
+        if (environment.PricingPolicies != null)
+        {
+            foreach (var policy in environment.PricingPolicies)
+            {
+                policy.Environment = environment;
+                var area = _mapper.Map<Domain.Entities.Environment>(_dto);
+            }
+        }
+
+        if (environment.DiscountPolicies != null)
+        {
+            foreach (var discount in environment.DiscountPolicies)
+            {
+                discount.Environment = environment;
+            }
+        }
+
+        if (environment.WeeklySchedules != null)
+        {
+            foreach (var schedule in environment.WeeklySchedules)
+            {
+                schedule.Environment = environment;
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(_dto.EquipmentJson))
         {

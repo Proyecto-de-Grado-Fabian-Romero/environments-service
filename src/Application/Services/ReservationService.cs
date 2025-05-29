@@ -16,9 +16,11 @@ public class ReservationService(
     private readonly IReservationRepository _resRepo = reservationRepo;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<ReservationResponse> CreateAsync(CreateReservationRequest request)
+    public async Task<ReservationResponse> CreateAsync(CreateReservationRequest request, Guid renterId)
     {
-        var command = new CreateReservationCommand(request, _envRepo, _resRepo, _mapper);
+        var dto = _mapper.Map<CreateReservationDto>(request);
+        dto.RenterId = renterId;
+        var command = new CreateReservationCommand(dto, _envRepo, _resRepo, _mapper);
         return await command.ExecuteAsync();
     }
 }

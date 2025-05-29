@@ -53,5 +53,11 @@ public class EnvironmentProfile : Profile
         CreateMap<SpecialAvailability, SpecialAvailabilityDto>().ReverseMap();
         CreateMap<EnvironmentArea, EnvironmentAreaDto>().ReverseMap();
         CreateMap<Reservation, ReservationResponse>();
+
+        CreateMap<ReservationTimeRange, TimeRangeDto>().ReverseMap();
+        CreateMap<Reservation, ReservationResponse>()
+            .ForMember(dest => dest.TimeRanges, opt => opt.MapFrom(src => src.TimeRanges));
+        CreateMap<CreateReservationRequest, CreateReservationDto>()
+            .ForMember(dest => dest.RenterId, opt => opt.Ignore());
     }
 }

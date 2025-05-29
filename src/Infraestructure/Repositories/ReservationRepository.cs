@@ -27,20 +27,24 @@ public class ReservationRepository(DbContext context) : IReservationRepository
     public async Task<bool> ExistsOverlappingReservationAsync(Guid environmentId, long start, long end)
     {
         return await _context.Set<Reservation>()
-            .Where(r => r.EnvironmentId == environmentId && (r.Status != "cancelled" || r.Status != "rejected"))
-            .Where(r =>
-                start < r.EndDate &&
-                end > r.StartDate).AnyAsync();
+            .Include(r => r.TimeRanges)
+            .Where(r => r.EnvironmentId == environmentId &&
+                        r.Status != "cancelled" &&
+                        r.Status != "rejected")
+            .AnyAsync(r =>
+                r.TimeRanges.Any(tr =>
+                    start < tr.EndDate && end > tr.StartDate));
     }
 
     public async Task<List<Reservation>> GetActiveReservationsByRenterAsync(Guid renterId)
     {
         return await _context.Set<Reservation>()
+            .Include(r => r.Environment)
+            .Include(r => r.TimeRanges)
             .Where(r =>
                 r.RenterId == renterId &&
                 r.Status != "cancelled" &&
                 r.Status != "rejected")
-            .Include(r => r.Environment)
             .ToListAsync();
     }
 }

@@ -1,3 +1,5 @@
+using EnvironmentsService.Src.Application.DTOs.Create;
+
 namespace EnvironmentsService.Src.Application.DTOs.Responses;
 
 public class ReservationResponse
@@ -8,9 +10,7 @@ public class ReservationResponse
 
     public Guid RenterId { get; set; }
 
-    public long StartDate { get; set; }
-
-    public long EndDate { get; set; }
+    public List<TimeRangeDto> TimeRanges { get; set; } = [];
 
     public string Status { get; set; } = default!;
 
