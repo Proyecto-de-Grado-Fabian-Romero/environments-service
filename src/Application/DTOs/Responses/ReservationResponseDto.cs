@@ -4,7 +4,7 @@ namespace EnvironmentsService.Src.Application.DTOs.Responses;
 
 public class ReservationResponse
 {
-    public Guid Id { get; set; }
+    public Guid PublicId { get; set; }
 
     public Guid EnvironmentId { get; set; }
 

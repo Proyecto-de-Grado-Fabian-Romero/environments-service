@@ -47,4 +47,23 @@ public class ReservationsController(IReservationService service) : ControllerBas
         var result = await _service.GetByUserAsync(userPublicId, status, page, limit);
         return Ok(result);
     }
+
+    [HttpGet("{publicId:guid}")]
+    public async Task<IActionResult> GetReservationByPublicId(Guid publicId)
+    {
+        try
+        {
+            var reservation = await _service.GetByPublicIdAsync(publicId);
+            if (reservation == null)
+            {
+                return NotFound("Reserva no encontrada");
+            }
+
+            return Ok(reservation);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
 }

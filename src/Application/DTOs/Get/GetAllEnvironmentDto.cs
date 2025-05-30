@@ -18,6 +18,8 @@ public class GetAllEnvironmentDto
 
     public EnvironmentTypeDto Type { get; set; } = null!;
 
+    public string Equipment { get; set; } = "{}";
+
     public Guid? Tour360Id { get; set; }
 
     public bool InstantBooking { get; set; }

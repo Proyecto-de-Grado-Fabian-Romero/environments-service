@@ -52,7 +52,6 @@ public class EnvironmentProfile : Profile
         CreateMap<WeeklySchedule, WeeklyScheduleDto>().ReverseMap();
         CreateMap<SpecialAvailability, SpecialAvailabilityDto>().ReverseMap();
         CreateMap<EnvironmentArea, EnvironmentAreaDto>().ReverseMap();
-        CreateMap<Reservation, ReservationResponse>();
 
         CreateMap<ReservationTimeRange, TimeRangeDto>().ReverseMap();
         CreateMap<Reservation, ReservationResponse>()
