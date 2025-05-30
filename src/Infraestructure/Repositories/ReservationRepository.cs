@@ -48,18 +48,27 @@ public class ReservationRepository(DbContext context) : IReservationRepository
             .ToListAsync();
     }
 
-    public async Task<List<Reservation>> GetByUserAsync(Guid userPublicId)
+    public async Task<List<Reservation>> GetUserReservationsAsync(Guid userId, string status, int page, int limit)
     {
-        return await _context.Set<Reservation>()
+        var query = _context.Set<Reservation>()
+            .Where(r => r.RenterId == userId && r.Status.ToLower() == status.ToLower())
             .Include(r => r.Environment)
-            .Where(r =>
-                r.RenterId == userPublicId ||
-                r.OwnerId == userPublicId)
+                .ThenInclude(e => e.Photos)
+            .Include(r => r.TimeRanges)
+            .AsQueryable();
+
+        return await query
+            .OrderBy(r => r.TimeRanges.Min(tr => tr.StartDate))
+            .Skip((page - 1) * limit)
+            .Take(limit)
             .ToListAsync();
     }
 
-    public IQueryable<Reservation> Query()
+    public async Task<Reservation?> GetByPublicIdAsync(Guid publicId)
     {
-        return _context.Set<Reservation>().AsQueryable();
+        return await _context.Set<Reservation>()
+            .Include(r => r.Environment)
+                .ThenInclude(e => e.Photos)
+            .FirstOrDefaultAsync(r => r.PublicId == publicId);
     }
 }

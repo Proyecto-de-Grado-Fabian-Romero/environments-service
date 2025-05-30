@@ -8,4 +8,6 @@ public interface IReservationService
     Task<ReservationResponse> CreateAsync(CreateReservationRequest request, Guid renterId);
 
     Task<List<ReservationResponse>> GetByUserAsync(Guid userId, string? status, int page, int limit);
+
+    Task<ReservationResponse?> GetByPublicIdAsync(Guid publicId);
 }
