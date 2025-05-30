@@ -10,4 +10,6 @@ public interface IReservationService
     Task<List<ReservationResponse>> GetByUserAsync(Guid userId, string? status, int page, int limit);
 
     Task<ReservationResponse?> GetByPublicIdAsync(Guid publicId);
+
+    Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, string newStatus);
 }

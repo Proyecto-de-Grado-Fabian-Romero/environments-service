@@ -71,4 +71,26 @@ public class ReservationRepository(DbContext context) : IReservationRepository
                 .ThenInclude(e => e.Photos)
             .FirstOrDefaultAsync(r => r.PublicId == publicId);
     }
+
+    public async Task<bool> ExistsOverlappingConfirmedAsync(
+        Guid environmentId,
+        Guid currentReservationId,
+        ICollection<ReservationTimeRange> timeRanges)
+    {
+        var confirmed = await _context.Set<Reservation>()
+            .Include(r => r.TimeRanges)
+            .Where(r => r.EnvironmentId == environmentId &&
+                        r.Status == "confirmed" &&
+                        r.Id != currentReservationId)
+            .ToListAsync();
+
+        return confirmed.Any(conf =>
+            conf.TimeRanges.Any(cRange =>
+                timeRanges.Any(newRange =>
+                    newRange.StartDate < cRange.EndDate &&
+                    newRange.EndDate > cRange.StartDate
+                )
+            )
+        );
+    }
 }

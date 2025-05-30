@@ -18,4 +18,9 @@ public interface IReservationRepository
     Task<List<Reservation>> GetUserReservationsAsync(Guid userId, string status, int page, int limit);
 
     Task<Reservation?> GetByPublicIdAsync(Guid publicId);
+
+    Task<bool> ExistsOverlappingConfirmedAsync(
+        Guid environmentId,
+        Guid currentReservationId,
+        ICollection<ReservationTimeRange> timeRanges);
 }
