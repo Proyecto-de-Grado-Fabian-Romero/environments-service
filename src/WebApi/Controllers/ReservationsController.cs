@@ -1,4 +1,5 @@
 using EnvironmentsService.Src.Application.DTOs.Create;
+using EnvironmentsService.src.Application.DTOs.Patch;
 using EnvironmentsService.Src.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,6 +61,20 @@ public class ReservationsController(IReservationService service) : ControllerBas
             }
 
             return Ok(reservation);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
+
+    [HttpPatch("{publicId:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid publicId, [FromBody] UpdateReservationStatusDto request)
+    {
+        try
+        {
+            var updated = await _service.UpdateStatusAsync(publicId, request.Status);
+            return Ok(updated);
         }
         catch (Exception ex)
         {

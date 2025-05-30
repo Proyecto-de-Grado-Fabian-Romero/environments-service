@@ -39,4 +39,10 @@ public class ReservationService(
         var reservation = await _resRepo.GetByPublicIdAsync(publicId);
         return reservation == null ? null : _mapper.Map<ReservationResponse>(reservation);
     }
+
+    public async Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, string newStatus)
+    {
+        var command = new UpdateReservationStatusCommand(reservationPublicId, newStatus, _resRepo, _mapper);
+        return await command.ExecuteAsync();
+    }
 }
