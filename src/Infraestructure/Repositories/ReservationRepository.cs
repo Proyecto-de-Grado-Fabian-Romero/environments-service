@@ -88,9 +88,6 @@ public class ReservationRepository(DbContext context) : IReservationRepository
             conf.TimeRanges.Any(cRange =>
                 timeRanges.Any(newRange =>
                     newRange.StartDate < cRange.EndDate &&
-                    newRange.EndDate > cRange.StartDate
-                )
-            )
-        );
+                    newRange.EndDate > cRange.StartDate)));
     }
 }
