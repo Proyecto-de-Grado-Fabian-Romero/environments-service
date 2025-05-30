@@ -58,7 +58,12 @@ public class EnvironmentProfile : Profile
             .ForMember(dest => dest.EnvironmentTitle, opt => opt.MapFrom(src => src.Environment.Title))
             .ForMember(dest => dest.EnvironmentPhotoUrl, opt => opt.MapFrom(src =>
                 src.Environment.Photos.OrderBy(p => p.Order).Select(p => p.Url).FirstOrDefault()))
-            .ForMember(dest => dest.TimeRanges, opt => opt.MapFrom(src => src.TimeRanges));
+            .ForMember(dest => dest.TimeRanges, opt => opt.MapFrom(src => src.TimeRanges))
+            .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalPrice))
+            .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.Currency))
+            .ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments));
+
+        CreateMap<ReservationPayment, ReservationPaymentResponse>();
 
         CreateMap<CreateReservationRequest, CreateReservationDto>()
             .ForMember(dest => dest.RenterId, opt => opt.Ignore());

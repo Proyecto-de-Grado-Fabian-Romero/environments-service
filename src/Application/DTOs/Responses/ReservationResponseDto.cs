@@ -19,4 +19,10 @@ public class ReservationResponse
     public string Status { get; set; } = default!;
 
     public bool IsInstant { get; set; }
+
+    public decimal TotalPrice { get; set; }
+
+    public string Currency { get; set; } = "Bs.";
+
+    public List<ReservationPaymentResponse> Payments { get; set; } = [];
 }
