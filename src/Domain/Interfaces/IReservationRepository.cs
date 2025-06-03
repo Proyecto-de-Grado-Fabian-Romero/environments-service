@@ -15,7 +15,7 @@ public interface IReservationRepository
 
     Task SaveChangesAsync();
 
-    Task<List<Reservation>> GetUserReservationsAsync(Guid userId, string status, int page, int limit);
+    Task<(List<Reservation>, int)> GetUserReservationsPaginatedAsync(Guid userId, string status, int page, int limit);
 
     Task<Reservation?> GetByPublicIdAsync(Guid publicId);
 
@@ -23,4 +23,8 @@ public interface IReservationRepository
         Guid environmentId,
         Guid currentReservationId,
         ICollection<ReservationTimeRange> timeRanges);
+
+    Task<List<Reservation>> GetConflictsAsync(Guid environmentId, long start, long end);
+
+    Task<List<Reservation>> GetByOwnerAndDayAsync(Guid ownerId, long timestamp);
 }

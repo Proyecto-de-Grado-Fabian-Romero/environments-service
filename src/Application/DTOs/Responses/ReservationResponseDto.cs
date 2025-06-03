@@ -10,9 +10,13 @@ public class ReservationResponse
 
     public string EnvironmentTitle { get; set; } = string.Empty;
 
+    public string RentalUnit { get; set; } = string.Empty;
+
     public string? EnvironmentPhotoUrl { get; set; }
 
     public Guid RenterId { get; set; }
+
+    public Guid OwnerId { get; set; }
 
     public List<TimeRangeDto> TimeRanges { get; set; } = [];
 

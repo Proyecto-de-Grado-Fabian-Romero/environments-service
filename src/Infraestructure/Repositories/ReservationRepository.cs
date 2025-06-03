@@ -48,22 +48,6 @@ public class ReservationRepository(DbContext context) : IReservationRepository
             .ToListAsync();
     }
 
-    public async Task<List<Reservation>> GetUserReservationsAsync(Guid userId, string status, int page, int limit)
-    {
-        var query = _context.Set<Reservation>()
-            .Where(r => r.RenterId == userId && r.Status.ToLower() == status.ToLower())
-            .Include(r => r.Environment)
-                .ThenInclude(e => e.Photos)
-            .Include(r => r.TimeRanges)
-            .AsQueryable();
-
-        return await query
-            .OrderBy(r => r.TimeRanges.Min(tr => tr.StartDate))
-            .Skip((page - 1) * limit)
-            .Take(limit)
-            .ToListAsync();
-    }
-
     public async Task<Reservation?> GetByPublicIdAsync(Guid publicId)
     {
         return await _context.Set<Reservation>()
@@ -89,5 +73,53 @@ public class ReservationRepository(DbContext context) : IReservationRepository
                 timeRanges.Any(newRange =>
                     newRange.StartDate < cRange.EndDate &&
                     newRange.EndDate > cRange.StartDate)));
+    }
+
+    public async Task<(List<Reservation>, int)> GetUserReservationsPaginatedAsync(Guid userId, string status, int page, int limit)
+    {
+        var query = _context.Set<Reservation>()
+            .Include(r => r.Environment)
+                .ThenInclude(e => e.Photos)
+            .Where(r => (r.RenterId == userId || r.OwnerId == userId) && r.Status == status);
+
+        var totalItems = await query.CountAsync();
+        var reservations = await query
+            .OrderByDescending(r => r.CreatedAt)
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync();
+
+        return (reservations, totalItems);
+    }
+
+    public async Task<List<Reservation>> GetConflictsAsync(Guid environmentId, long start, long end)
+    {
+        return await _context.Set<Reservation>()
+            .Where(r => r.EnvironmentId == environmentId)
+            .Where(r => r.Status == "pending" || r.Status == "confirmed")
+            .Where(r =>
+                r.TimeRanges.Any(tr =>
+                    start < tr.EndDate &&
+                    end > tr.StartDate))
+            .Include(r => r.Environment)
+            .Include(r => r.TimeRanges)
+            .ToListAsync();
+    }
+
+    public async Task<List<Reservation>> GetByOwnerAndDayAsync(Guid ownerId, long timestamp)
+    {
+        var startOfDay = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime.Date;
+        var endOfDay = startOfDay.AddDays(1).AddTicks(-1);
+        var startUnix = new DateTimeOffset(startOfDay).ToUnixTimeMilliseconds();
+        var endUnix = new DateTimeOffset(endOfDay).ToUnixTimeMilliseconds();
+
+        var excludedStatuses = new[] { "rejected", "cancelled" };
+
+        return await _context.Set<Reservation>()
+            .Where(r => r.OwnerId == ownerId && !excludedStatuses.Contains(r.Status))
+            .Where(r => r.TimeRanges.Any(tr => tr.StartDate < endUnix && tr.EndDate > startUnix))
+            .Include(r => r.Environment)
+            .ThenInclude(e => e.Photos)
+            .ToListAsync();
     }
 }
