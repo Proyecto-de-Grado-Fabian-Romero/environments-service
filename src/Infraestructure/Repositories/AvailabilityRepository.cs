@@ -38,4 +38,14 @@ public class AvailabilityRepository(AppDbContext context) : IAvailabilityReposit
                             tr.EndDate > startUnix))
             .ToListAsync();
     }
+
+    public async Task AddAsync(NonAvailability availability)
+    {
+        await _context.NonAvailabilities.AddAsync(availability);
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

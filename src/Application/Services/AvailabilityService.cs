@@ -1,20 +1,25 @@
+using EnvironmentsService.src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Application.Interfaces;
+using EnvironmentsService.Src.Domain.Entities;
 using EnvironmentsService.Src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Services;
 
-public class AvailabilityService(IAvailabilityRepository availabilityRepo) : IAvailabilityService
+public class AvailabilityService(
+    IEnvironmentRepository environmentRepo,
+    IAvailabilityRepository availabilityRepo) : IAvailabilityService
 {
-    private readonly IAvailabilityRepository _availabilityRepo = availabilityRepo;
+    private readonly IEnvironmentRepository _envRepo = environmentRepo;
+    private readonly IAvailabilityRepository _availRepo = availabilityRepo;
 
     public async Task<List<TimeRange>> GetUnavailableTimeSlotsAsync(Guid envId, long startTimestamp, long endTimestamp)
     {
         var start = DateTimeOffset.FromUnixTimeMilliseconds(startTimestamp).UtcDateTime;
         var end = DateTimeOffset.FromUnixTimeMilliseconds(endTimestamp).UtcDateTime;
 
-        var nonAvailabilities = await _availabilityRepo.GetNonAvailabilitiesAsync(envId, start, end);
-        var reservations = await _availabilityRepo.GetReservationsAsync(envId, start, end);
+        var nonAvailabilities = await _availRepo.GetNonAvailabilitiesAsync(envId, start, end);
+        var reservations = await _availRepo.GetReservationsAsync(envId, start, end);
 
         var allRanges = new List<TimeRange>();
 
@@ -26,5 +31,30 @@ public class AvailabilityService(IAvailabilityRepository availabilityRepo) : IAv
             .Select(tr => new TimeRange(tr.StartDate, tr.EndDate)));
 
         return allRanges;
+    }
+
+    public async Task BlockDateAsync(BlockAvailabilityRequest request, Guid ownerId)
+    {
+        var environment = await _envRepo.GetSingleEnvironment(request.EnvironmentId)
+            ?? throw new Exception("El ambiente no existe");
+
+        if (environment.OwnerId != ownerId)
+        {
+            throw new Exception("No tienes permiso para modificar este ambiente");
+        }
+
+        var date = DateTimeOffset.FromUnixTimeMilliseconds(request.Date).UtcDateTime.Date;
+
+        var start = new DateTimeOffset(date).ToUnixTimeMilliseconds();
+        var end = new DateTimeOffset(date.AddDays(1).AddMinutes(-1)).ToUnixTimeMilliseconds(); // 23:59
+
+        await _availRepo.AddAsync(new NonAvailability
+        {
+            EnvironmentId = request.EnvironmentId,
+            StartDate = start,
+            EndDate = end,
+        });
+
+        await _availRepo.SaveChangesAsync();
     }
 }
