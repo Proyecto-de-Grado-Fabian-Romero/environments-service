@@ -38,4 +38,23 @@ public class AvailabilityRepository(AppDbContext context) : IAvailabilityReposit
                             tr.EndDate > startUnix))
             .ToListAsync();
     }
+
+    public async Task<List<NonAvailability>> GetOwnerBlockedByOwnerIdAsync(Guid ownerId)
+    {
+        return await _context.NonAvailabilities
+            .Include(n => n.Environment)
+            .ThenInclude(e => e.Photos)
+            .Where(n => n.Type == "OwnerBlocked" && n.Environment.OwnerId == ownerId)
+            .ToListAsync();
+    }
+
+    public async Task AddAsync(NonAvailability availability)
+    {
+        await _context.NonAvailabilities.AddAsync(availability);
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

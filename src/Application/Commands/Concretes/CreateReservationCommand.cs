@@ -121,7 +121,7 @@ public class CreateReservationCommand(
             OwnerId = environment.OwnerId,
             RenterId = request.RenterId,
             IsInstant = environment.InstantBooking,
-            Status = environment.InstantBooking ? "confirmed" : "pending",
+            Status = environment.InstantBooking ? "paid" : "pending",
             CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Currency = request.Currency,
             TotalPrice = request.TotalPrice,

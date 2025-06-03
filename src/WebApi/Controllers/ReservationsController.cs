@@ -81,4 +81,34 @@ public class ReservationsController(IReservationService service) : ControllerBas
             return BadRequest(new { mensaje = ex.Message });
         }
     }
+
+    [HttpGet("conflicts")]
+    public async Task<IActionResult> GetConflictingReservations(
+    [FromQuery] Guid environmentId,
+    [FromQuery] long start,
+    [FromQuery] long end)
+    {
+        var conflicts = await _service.GetConflictingReservationsAsync(environmentId, start, end);
+        return Ok(conflicts);
+    }
+
+    [HttpGet("day")]
+    public async Task<IActionResult> GetReservationsByDay([FromQuery] long timestamp)
+    {
+        var publicIdClaim = Request.Cookies["publicId"];
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        {
+            return Unauthorized("Invalid or missing user public_id");
+        }
+
+        try
+        {
+            var reservations = await _service.GetByOwnerAndDayAsync(userPublicId, timestamp);
+            return Ok(reservations);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

@@ -4,7 +4,7 @@ namespace EnvironmentsService.Src.Application.Strategies.Interfaces;
 
 public interface IEnvironmentFilterStrategy
 {
-    IQueryable<Src.Domain.Entities.Environment> Apply(
-            IQueryable<Src.Domain.Entities.Environment> query,
+    IQueryable<Domain.Entities.Environment> Apply(
+            IQueryable<Domain.Entities.Environment> query,
             GetAvailableEnvironmentsRequest request);
 }
