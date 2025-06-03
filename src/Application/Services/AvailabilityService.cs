@@ -43,18 +43,32 @@ public class AvailabilityService(
             throw new Exception("No tienes permiso para modificar este ambiente");
         }
 
-        var date = DateTimeOffset.FromUnixTimeMilliseconds(request.Date).UtcDateTime.Date;
-
-        var start = new DateTimeOffset(date).ToUnixTimeMilliseconds();
-        var end = new DateTimeOffset(date.AddDays(1).AddMinutes(-1)).ToUnixTimeMilliseconds(); // 23:59
+        if (request.StartDate >= request.EndDate)
+        {
+            throw new Exception("La hora de inicio debe ser menor que la hora de fin");
+        }
 
         await _availRepo.AddAsync(new NonAvailability
         {
             EnvironmentId = request.EnvironmentId,
-            StartDate = start,
-            EndDate = end,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
+            Type = "OwnerBlocked",
         });
 
         await _availRepo.SaveChangesAsync();
+    }
+
+    public async Task<List<OwnerBlockedAvailabilityDto>> GetOwnerBlockedAsync(Guid ownerId)
+    {
+        var blocked = await _availRepo.GetOwnerBlockedByOwnerIdAsync(ownerId);
+
+        return [.. blocked.Select(n => new OwnerBlockedAvailabilityDto
+        {
+            EnvironmentTitle = n.Environment.Title,
+            EnvironmentPhotoUrl = n.Environment.Photos.OrderBy(p => p.Order).FirstOrDefault()?.Url,
+            StartDate = n.StartDate,
+            EndDate = n.EndDate,
+        })];
     }
 }

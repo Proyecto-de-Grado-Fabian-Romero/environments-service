@@ -4,5 +4,7 @@ public class BlockAvailabilityRequest
 {
     public Guid EnvironmentId { get; set; }
 
-    public long Date { get; set; }
+    public long StartDate { get; set; }
+
+    public long EndDate { get; set; }
 }

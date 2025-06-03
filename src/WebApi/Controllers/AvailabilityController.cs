@@ -37,4 +37,18 @@ public class AvailabilityController(IAvailabilityService service) : ControllerBa
             return BadRequest(new { error = ex.Message });
         }
     }
+
+    [HttpGet("owner-blocked")]
+    public async Task<IActionResult> GetOwnerBlocked()
+    {
+        var publicIdClaim = Request.Cookies["publicId"];
+
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var ownerId))
+        {
+            return Unauthorized("Invalid or missing user public_id");
+        }
+
+        var result = await _service.GetOwnerBlockedAsync(ownerId);
+        return Ok(result);
+    }
 }
