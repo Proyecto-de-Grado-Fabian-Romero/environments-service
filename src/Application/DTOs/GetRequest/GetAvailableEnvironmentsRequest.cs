@@ -14,6 +14,8 @@ public class GetAvailableEnvironmentsRequest
 
     public List<(string AreaPublicKey, int MinQuantity)>? Areas { get; set; }
 
+    public Dictionary<string, int>? EquipmentRequired { get; set; }
+
     public bool? InstantBookingRequired { get; set; }
 
     public decimal? MinPrice { get; set; }
