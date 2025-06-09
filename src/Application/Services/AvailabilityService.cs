@@ -1,5 +1,6 @@
 using EnvironmentsService.src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Get;
+using EnvironmentsService.Src.Application.DTOs.Responses;
 using EnvironmentsService.Src.Application.Interfaces;
 using EnvironmentsService.Src.Domain.Entities;
 using EnvironmentsService.Src.Domain.Interfaces;
@@ -65,6 +66,7 @@ public class AvailabilityService(
 
         return [.. blocked.Select(n => new OwnerBlockedAvailabilityDto
         {
+            EnvironmentId = n.EnvironmentId,
             EnvironmentTitle = n.Environment.Title,
             EnvironmentPhotoUrl = n.Environment.Photos.OrderBy(p => p.Order).FirstOrDefault()?.Url,
             StartDate = n.StartDate,

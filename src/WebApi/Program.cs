@@ -68,7 +68,9 @@ builder.Services.AddScoped<IEnvironmentFilterStrategy, PriceFilterStrategy>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, ServiceFilterStrategy>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, AreaFilterStrategy>();
 builder.Services.AddScoped<IEnvironmentFilterStrategy, DateAvailabilityFilterStrategy>();
+builder.Services.AddScoped<IEnvironmentPostFilterStrategy, FilterByEquipmentStrategy>();
 builder.Services.AddScoped<EnvironmentFilterPipeline>();
+builder.Services.AddScoped<EnvironmentPostFilterPipeline>();
 
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ITourRepository, TourRepository>();

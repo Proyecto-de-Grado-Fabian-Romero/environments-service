@@ -20,4 +20,6 @@ public interface IEnvironmentRepository
     Task AddImageAsync(EnvironmentPhoto image);
 
     Task UpdateDetectedEquipmentAsync(Guid publicId, string serializedEquipment);
+
+    Task<List<Entities.Environment>> GetFilteredEnvironmentsAsync(GetAvailableEnvironmentsRequest request);
 }

@@ -22,6 +22,8 @@ public class GetAllEnvironmentDto
 
     public Guid? Tour360Id { get; set; }
 
+    public Guid OwnerId { get; set; }
+
     public bool InstantBooking { get; set; }
 
     public int MinRentalTime { get; set; }

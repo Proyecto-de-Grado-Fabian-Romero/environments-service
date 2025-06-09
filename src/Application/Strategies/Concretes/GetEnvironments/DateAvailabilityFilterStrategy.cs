@@ -22,17 +22,21 @@ public class DateAvailabilityFilterStrategy : IEnvironmentFilterStrategy
                 .Select(offset => start.Date.AddDays(offset))
                 .ToList();
 
+            if (request.EnvironmentTypePublicKey == "hospedajes")
+            {
+                return query;
+            }
+
             foreach (var date in dates)
             {
                 var dow = (int)date.DayOfWeek;
                 var startMinutes = date == start.Date ? (start.Hour * 60) + start.Minute : 0;
                 var endMinutes = date == end.Date ? (end.Hour * 60) + end.Minute : 1440;
 
-                query = query.Where(e =>
-                    e.WeeklySchedules.Any(ws =>
-                        ws.DayOfWeek == dow &&
-                        ws.StartTime <= startMinutes &&
-                        ws.EndTime >= endMinutes));
+                // query = query.Where(e =>
+                //     e.WeeklySchedules.Any(ws =>
+                //         ws.DayOfWeek == dow &&
+                //         ws.StartTime <= endMinutes && ws.EndTime >= startMinutes));
             }
         }
 

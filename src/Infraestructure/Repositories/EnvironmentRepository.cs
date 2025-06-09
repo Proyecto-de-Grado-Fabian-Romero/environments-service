@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EnvironmentsService.Src.Infraestructure.Repositories;
 
-public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline pipeline) : IEnvironmentRepository
+public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline pipeline, EnvironmentPostFilterPipeline postPipeline) : IEnvironmentRepository
 {
     private readonly DbContext _context = context;
     private readonly EnvironmentFilterPipeline _pipeline = pipeline;
+    private readonly EnvironmentPostFilterPipeline _postPipeline = postPipeline;
 
     public async Task<(List<Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
     GetAvailableEnvironmentsRequest request, int page, int limit)
@@ -17,13 +18,16 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
         var baseQuery = GetBaseEnvironmentQuery();
         var filteredQuery = _pipeline.ApplyFilters(baseQuery, request);
 
-        var totalItems = await filteredQuery.CountAsync();
-        var environments = await filteredQuery
+        var resultsFromDb = await filteredQuery.ToListAsync();
+
+        var filteredInMemory = _postPipeline.ApplyFilters(resultsFromDb, request);
+
+        var paged = filteredInMemory
             .Skip((page - 1) * limit)
             .Take(limit)
-            .ToListAsync();
+            .ToList();
 
-        return (environments, totalItems);
+        return (paged, filteredInMemory.Count());
     }
 
     public async Task<(List<Domain.Entities.Environment> Environments, int TotalItems)> GetOwnerEnvironmentsAsync(
@@ -73,6 +77,14 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
         environment.Equipment = serializedEquipment;
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Domain.Entities.Environment>> GetFilteredEnvironmentsAsync(GetAvailableEnvironmentsRequest request)
+    {
+        var baseQuery = GetBaseEnvironmentQuery();
+        var filteredQuery = _pipeline.ApplyFilters(baseQuery, request);
+
+        return await filteredQuery.ToListAsync();
     }
 
     private IQueryable<Domain.Entities.Environment> GetBaseEnvironmentQuery()

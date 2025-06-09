@@ -28,6 +28,7 @@ public class ReservationsController(IReservationService service) : ControllerBas
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return BadRequest(new { mensaje = ex.Message });
         }
     }

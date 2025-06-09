@@ -1,5 +1,6 @@
 using EnvironmentsService.src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Get;
+using EnvironmentsService.Src.Application.DTOs.Responses;
 
 namespace EnvironmentsService.Src.Application.Interfaces;
 
