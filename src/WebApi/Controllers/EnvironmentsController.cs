@@ -72,4 +72,12 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("available-equipment")]
+    public async Task<IActionResult> GetAvailableEquipment(
+    [FromBody] GetAvailableEnvironmentsRequest request)
+    {
+        var result = await _service.GetAvailableEquipmentAsync(request);
+        return Ok(result);
+    }
 }
