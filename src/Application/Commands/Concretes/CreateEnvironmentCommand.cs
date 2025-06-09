@@ -85,11 +85,6 @@ public class CreateEnvironmentCommand(
             environment.Equipment = _dto.EquipmentJson;
         }
 
-        if (_dto.Request360Tour)
-        {
-            await _adminServiceAdapter.RequestTourAsync(environment.PublicId, _userId);
-        }
-
         await _repository.AddAsync(environment);
         await _repository.SaveChangesAsync();
 
@@ -107,6 +102,11 @@ public class CreateEnvironmentCommand(
                     FileId = uploaded.FileId,
                 });
             }
+        }
+
+        if (_dto.Request360Tour)
+        {
+            await _adminServiceAdapter.RequestTourAsync(environment.PublicId, _userId);
         }
 
         return _mapper.Map<EnvironmentDto>(environment);

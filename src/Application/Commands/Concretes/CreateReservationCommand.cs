@@ -44,6 +44,11 @@ public class CreateReservationCommand(
             {
                 var resStart = date == startDateTime.Date ? startDateTime.TimeOfDay.TotalMilliseconds : 0;
                 var resEnd = date == endDateTime.Date ? endDateTime.TimeOfDay.TotalMilliseconds : 86400000;
+                var resStartTime = date == startDateTime.Date ? startDateTime.TimeOfDay : TimeSpan.Zero;
+                var resEndTime = date == endDateTime.Date ? endDateTime.TimeOfDay : TimeSpan.FromMinutes(1440); // Fin del día
+
+                var resStartMinutes = (int)resStartTime.TotalMinutes;
+                var resEndMinutes = (int)resEndTime.TotalMinutes;
 
                 var special = environment.SpecialAvailabilities.FirstOrDefault(sa => sa.Date.Date == date.Date);
                 if (special != null)
@@ -64,9 +69,9 @@ public class CreateReservationCommand(
                     var weekly = environment.WeeklySchedules.FirstOrDefault(ws => ws.DayOfWeek == dayOfWeek)
                         ?? throw new Exception($"El entorno no está disponible el día {date:dddd}.");
 
-                    if (resStart < weekly.StartTime || resEnd > weekly.EndTime)
+                    if (resStartMinutes < weekly.StartTime || resEndMinutes > weekly.EndTime)
                     {
-                        throw new Exception($"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMilliseconds(weekly.StartTime)} y {TimeSpan.FromMilliseconds(weekly.EndTime)}.");
+                        throw new Exception($"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMinutes(weekly.StartTime):hh\\:mm} y {TimeSpan.FromMinutes(weekly.EndTime):hh\\:mm}.");
                     }
                 }
             }

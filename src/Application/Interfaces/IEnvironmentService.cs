@@ -15,4 +15,6 @@ public interface IEnvironmentService
     Task<EnvironmentDto> CreateAsync(CreateEnvironmentDto dto, Guid userId);
 
     Task UpdateDetectedObjectsAsync(Guid publicId, Dictionary<string, int> detectedObjects);
+
+    Task<List<AvailableEquipmentDto>> GetAvailableEquipmentAsync(GetAvailableEnvironmentsRequest request);
 }

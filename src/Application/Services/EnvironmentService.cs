@@ -65,4 +65,10 @@ public class EnvironmentService(
         var command = new UpdateDetectedObjectsCommand(_repository, publicId, detectedObjects);
         await command.ExecuteAsync();
     }
+
+    public async Task<List<AvailableEquipmentDto>> GetAvailableEquipmentAsync(GetAvailableEnvironmentsRequest request)
+    {
+        var command = new GetAvailableEquipmentCommand(request, _repository);
+        return await command.ExecuteAsync();
+    }
 }

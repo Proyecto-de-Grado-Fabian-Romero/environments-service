@@ -80,7 +80,9 @@ public class ReservationRepository(DbContext context) : IReservationRepository
         var query = _context.Set<Reservation>()
             .Include(r => r.Environment)
                 .ThenInclude(e => e.Photos)
-            .Where(r => (r.RenterId == userId || r.OwnerId == userId) && r.Status == status);
+            .Include(r => r.TimeRanges)
+            .Include(r => r.Payments)
+            .Where(r => r.RenterId == userId || r.OwnerId == userId /* && r.Status == status */);
 
         var totalItems = await query.CountAsync();
         var reservations = await query

@@ -75,6 +75,14 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
         await _context.SaveChangesAsync();
     }
 
+    public async Task<List<Domain.Entities.Environment>> GetFilteredEnvironmentsAsync(GetAvailableEnvironmentsRequest request)
+    {
+        var baseQuery = GetBaseEnvironmentQuery();
+        var filteredQuery = _pipeline.ApplyFilters(baseQuery, request);
+
+        return await filteredQuery.ToListAsync();
+    }
+
     private IQueryable<Domain.Entities.Environment> GetBaseEnvironmentQuery()
     {
         return _context.Set<Domain.Entities.Environment>()
