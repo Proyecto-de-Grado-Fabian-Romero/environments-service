@@ -12,7 +12,7 @@ public interface IReservationService
 
     Task<ReservationResponse?> GetByPublicIdAsync(Guid publicId);
 
-    Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, string newStatus);
+    Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, Guid ownerId, string newStatus);
 
     Task<List<ReservationResponse>> GetConflictingReservationsAsync(Guid environmentId, long start, long end);
 

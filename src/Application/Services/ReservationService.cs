@@ -51,9 +51,9 @@ public class ReservationService(
         return reservation == null ? null : _mapper.Map<ReservationResponse>(reservation);
     }
 
-    public async Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, string newStatus)
+    public async Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, Guid ownerId, string newStatus)
     {
-        var command = new UpdateReservationStatusCommand(reservationPublicId, newStatus, _resRepo, _mapper);
+        var command = new UpdateReservationStatusCommand(reservationPublicId, ownerId, newStatus, _resRepo, _adminServiceAdapter, _mapper);
         return await command.ExecuteAsync();
     }
 

@@ -155,12 +155,15 @@ public class CreateReservationCommand(
         await _reservationRepo.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        await _adminServiceAdapter.RequestOwnerIncomeAsync(
+        if (environment.InstantBooking)
+        {
+            await _adminServiceAdapter.RequestOwnerIncomeAsync(
             environment.OwnerId,
             reservation.Id,
             request.TotalPrice,
             request.Currency,
             DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
 
         return _mapper.Map<ReservationResponse>(reservation);
     }
