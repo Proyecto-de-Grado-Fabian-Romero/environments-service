@@ -1,18 +1,22 @@
 using AutoMapper;
 using EnvironmentsService.Src.Application.DTOs.Responses;
+using EnvironmentsService.Src.Application.Interfaces;
 using EnvironmentsService.Src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Commands.Concretes;
 
 public class UpdateReservationStatusCommand(
     Guid reservationPublicId,
+    Guid ownerId,
     string newStatus,
     IReservationRepository resRepo,
+    IAdminServiceAdapter adminServiceAdapter,
     IMapper mapper)
 {
     private readonly Guid _reservationPublicId = reservationPublicId;
     private readonly string _newStatus = newStatus.ToLower();
     private readonly IReservationRepository _resRepo = resRepo;
+    private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
     private readonly IMapper _mapper = mapper;
 
     public async Task<ReservationResponse> ExecuteAsync()
@@ -43,6 +47,13 @@ public class UpdateReservationStatusCommand(
             {
                 throw new Exception("Ya existe una reserva confirmada para este periodo.");
             }
+
+            await _adminServiceAdapter.RequestOwnerIncomeAsync(
+            ownerId,
+            reservation.Id,
+            reservation.TotalPrice,
+            reservation.Currency,
+            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
 
         reservation.Status = _newStatus;

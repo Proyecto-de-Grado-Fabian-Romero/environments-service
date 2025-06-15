@@ -12,17 +12,19 @@ using Microsoft.EntityFrameworkCore;
 public class ReservationService(
     IEnvironmentRepository environmentRepo,
     IReservationRepository reservationRepo,
+    IAdminServiceAdapter adminServiceAdapter,
     IMapper mapper) : IReservationService
 {
     private readonly IEnvironmentRepository _envRepo = environmentRepo;
     private readonly IReservationRepository _resRepo = reservationRepo;
+    private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
     private readonly IMapper _mapper = mapper;
 
     public async Task<ReservationResponse> CreateAsync(CreateReservationRequest request, Guid renterId)
     {
         var dto = _mapper.Map<CreateReservationDto>(request);
         dto.RenterId = renterId;
-        var command = new CreateReservationCommand(dto, _envRepo, _resRepo, _mapper);
+        var command = new CreateReservationCommand(dto, _envRepo, _resRepo, _adminServiceAdapter, _mapper);
         return await command.ExecuteAsync();
     }
 
@@ -49,9 +51,9 @@ public class ReservationService(
         return reservation == null ? null : _mapper.Map<ReservationResponse>(reservation);
     }
 
-    public async Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, string newStatus)
+    public async Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, Guid ownerId, string newStatus)
     {
-        var command = new UpdateReservationStatusCommand(reservationPublicId, newStatus, _resRepo, _mapper);
+        var command = new UpdateReservationStatusCommand(reservationPublicId, ownerId, newStatus, _resRepo, _adminServiceAdapter, _mapper);
         return await command.ExecuteAsync();
     }
 

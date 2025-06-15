@@ -72,9 +72,16 @@ public class ReservationsController(IReservationService service) : ControllerBas
     [HttpPatch("{publicId:guid}/status")]
     public async Task<IActionResult> UpdateStatus(Guid publicId, [FromBody] UpdateReservationStatusDto request)
     {
+        var publicIdClaim = Request.Cookies["publicId"];
+
+        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        {
+            return Unauthorized("Invalid or missing user public_id");
+        }
+
         try
         {
-            var updated = await _service.UpdateStatusAsync(publicId, request.Status);
+            var updated = await _service.UpdateStatusAsync(publicId, userPublicId, request.Status);
             return Ok(updated);
         }
         catch (Exception ex)
