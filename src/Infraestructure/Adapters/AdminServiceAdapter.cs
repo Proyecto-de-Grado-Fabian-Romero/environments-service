@@ -7,7 +7,6 @@ namespace EnvironmentsService.Src.Infraestructure.Adapters;
 public class AdminServiceAdapter(HttpClient client) : IAdminServiceAdapter
 {
     private readonly HttpClient _client = client;
-    private readonly string _requestUrl = "/api/tour360requests";
 
     public async Task RequestTourAsync(Guid environmentId, Guid ownerId)
     {
@@ -22,7 +21,34 @@ public class AdminServiceAdapter(HttpClient client) : IAdminServiceAdapter
             Encoding.UTF8,
             "application/json");
 
-        var request = new HttpRequestMessage(HttpMethod.Post, _requestUrl)
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/tour360requests")
+        {
+            Content = content,
+        };
+
+        request.Headers.Add("Cookie", $"publicId={ownerId}");
+
+        var response = await _client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task RequestOwnerIncomeAsync(Guid ownerId, Guid reservationId, decimal amount, string currency, long generatedAt)
+    {
+        var payload = new
+        {
+            OwnerId = ownerId,
+            ReservationId = reservationId,
+            Amount = amount,
+            Currency = currency,
+            GeneratedAt = generatedAt,
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/owners/earnings")
         {
             Content = content,
         };

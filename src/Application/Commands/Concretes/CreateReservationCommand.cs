@@ -4,6 +4,7 @@ using AutoMapper;
 using EnvironmentsService.Src.Application.Commands.Interfaces;
 using EnvironmentsService.Src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Responses;
+using EnvironmentsService.Src.Application.Interfaces;
 using EnvironmentsService.Src.Domain.Entities.Booking;
 using EnvironmentsService.Src.Domain.Interfaces;
 
@@ -11,11 +12,13 @@ public class CreateReservationCommand(
     CreateReservationDto request,
     IEnvironmentRepository environmentRepo,
     IReservationRepository reservationRepo,
+    IAdminServiceAdapter adminServiceAdapter,
     IMapper mapper
 ) : ICommand<ReservationResponse>
 {
     private readonly IEnvironmentRepository _environmentRepo = environmentRepo;
     private readonly IReservationRepository _reservationRepo = reservationRepo;
+    private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
     private readonly IMapper _mapper = mapper;
 
     public async Task<ReservationResponse> ExecuteAsync()
@@ -77,7 +80,7 @@ public class CreateReservationCommand(
             }
         }
 
-        // Verificar límite de tiempo total
+        // Verify total time limit
         var existingReservations = await _reservationRepo.GetActiveReservationsByRenterAsync(request.RenterId);
         int totalTimeUnits = 0;
 
@@ -151,6 +154,13 @@ public class CreateReservationCommand(
         await _reservationRepo.AddAsync(reservation);
         await _reservationRepo.SaveChangesAsync();
         await transaction.CommitAsync();
+
+        await _adminServiceAdapter.RequestOwnerIncomeAsync(
+            environment.OwnerId,
+            reservation.Id,
+            request.TotalPrice,
+            request.Currency,
+            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
         return _mapper.Map<ReservationResponse>(reservation);
     }
