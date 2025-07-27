@@ -107,6 +107,7 @@ public class CreateReservationCommand(
             }
         }
 
+        // BUG: ESTO ES MAS DE 5 RESERVAS A LA VEZ, NO 5 UNIDADES DE TIEMPO
         foreach (var range in request.TimeRanges)
         {
             var duration = DateTimeOffset.FromUnixTimeMilliseconds(range.EndDate).UtcDateTime
@@ -119,7 +120,7 @@ public class CreateReservationCommand(
 
         if (totalTimeUnits > 5)
         {
-            throw new Exception("No puedes tener más de 5 unidades de tiempo reservadas activas.");
+            // throw new Exception("No puedes tener más de 5 unidades de tiempo reservadas activas.");
         }
 
         // Crear reserva con time ranges
@@ -157,12 +158,13 @@ public class CreateReservationCommand(
 
         if (environment.InstantBooking)
         {
+            Console.WriteLine("hecho");
             await _adminServiceAdapter.RequestOwnerIncomeAsync(
-            environment.OwnerId,
-            reservation.Id,
-            request.TotalPrice,
-            request.Currency,
-            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+                environment.OwnerId,
+                reservation.Id,
+                request.TotalPrice,
+                request.Currency,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
 
         return _mapper.Map<ReservationResponse>(reservation);

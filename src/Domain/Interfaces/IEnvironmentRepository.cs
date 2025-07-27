@@ -6,7 +6,7 @@ namespace EnvironmentsService.Src.Domain.Interfaces;
 public interface IEnvironmentRepository
 {
     Task<(List<Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
-    GetAvailableEnvironmentsRequest request, int page, int limit);
+    GetAvailableEnvironmentsRequest request, int page, int limit, Guid? userPublicId);
 
     Task<(List<Entities.Environment> Environments, int TotalItems)> GetOwnerEnvironmentsAsync(
     Guid pubUserId, int page, int limit);

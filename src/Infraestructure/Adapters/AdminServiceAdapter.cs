@@ -39,7 +39,7 @@ public class AdminServiceAdapter(HttpClient client) : IAdminServiceAdapter
             OwnerId = ownerId,
             ReservationId = reservationId,
             Amount = amount,
-            Currency = currency,
+            Currency = 0,
             GeneratedAt = generatedAt,
         };
 
