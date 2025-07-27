@@ -6,6 +6,8 @@ public class CreateReservationDto
 
     public Guid RenterId { get; set; }
 
+    public string RenterEmail { get; set; } = string.Empty;
+
     public List<TimeRangeDto> TimeRanges { get; set; } = [];
 
     public int TotalPrice { get; set; }
