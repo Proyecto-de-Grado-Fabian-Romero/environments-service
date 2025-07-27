@@ -11,17 +11,19 @@ public class GetAllEnvironmentsCommand(
     IMapper mapper,
     GetAvailableEnvironmentsRequest request,
     int page,
-    int limit) : ICommand<PagedResult<GetAllEnvironmentDto>>
+    int limit,
+    Guid? userPublicId) : ICommand<PagedResult<GetAllEnvironmentDto>>
 {
     private readonly IEnvironmentRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
     private readonly GetAvailableEnvironmentsRequest _request = request;
     private readonly int _page = page;
     private readonly int _limit = limit;
+    private readonly Guid? _userPublicId = userPublicId;
 
     public async Task<PagedResult<GetAllEnvironmentDto>> ExecuteAsync()
     {
-        var (environments, totalItems) = await _repository.FilterEnvironmentsAsync(_request, _page, _limit);
+        var (environments, totalItems) = await _repository.FilterEnvironmentsAsync(_request, _page, _limit, _userPublicId);
         var dtos = _mapper.Map<List<GetAllEnvironmentDto>>(environments);
 
         return new PagedResult<GetAllEnvironmentDto>

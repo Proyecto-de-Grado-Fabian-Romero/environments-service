@@ -18,7 +18,15 @@ public class EnvironmentsController(IEnvironmentService service) : ControllerBas
         [FromQuery] int page = 1,
         [FromQuery] int limit = 16)
     {
-        var result = await _service.GetAvailableEnvironmentsAsync(request, page, limit);
+        var publicIdClaim = Request.Cookies["publicId"];
+        Guid? userPublicId = null;
+
+        if (Guid.TryParse(publicIdClaim, out var parsedId))
+        {
+            userPublicId = parsedId;
+        }
+
+        var result = await _service.GetAvailableEnvironmentsAsync(request, page, limit, userPublicId);
         return Ok(result);
     }
 

@@ -13,9 +13,18 @@ public class EnvironmentRepository(DbContext context, EnvironmentFilterPipeline 
     private readonly EnvironmentPostFilterPipeline _postPipeline = postPipeline;
 
     public async Task<(List<Domain.Entities.Environment> Environments, int TotalItems)> FilterEnvironmentsAsync(
-    GetAvailableEnvironmentsRequest request, int page, int limit)
+    GetAvailableEnvironmentsRequest request,
+    int page,
+    int limit,
+    Guid? userPublicId)
     {
         var baseQuery = GetBaseEnvironmentQuery();
+
+        if (userPublicId.HasValue)
+        {
+            baseQuery = baseQuery.Where(e => e.OwnerId != userPublicId.Value);
+        }
+
         var filteredQuery = _pipeline.ApplyFilters(baseQuery, request);
 
         var resultsFromDb = await filteredQuery.ToListAsync();

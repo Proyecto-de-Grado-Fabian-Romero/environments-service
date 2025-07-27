@@ -26,9 +26,13 @@ public class EnvironmentService(
     private readonly IImageStorageServiceAdapter _imageStorageService = imageStorageService;
     private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
 
-    public async Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(GetAvailableEnvironmentsRequest request, int page, int limit)
+    public async Task<PagedResult<GetAllEnvironmentDto>> GetAvailableEnvironmentsAsync(
+        GetAvailableEnvironmentsRequest request,
+        int page,
+        int limit,
+        Guid? userPublicId)
     {
-        var command = new GetAllEnvironmentsCommand(_repository, _mapper, request, page, limit);
+        var command = new GetAllEnvironmentsCommand(_repository, _mapper, request, page, limit, userPublicId);
         return await command.ExecuteAsync();
     }
 
