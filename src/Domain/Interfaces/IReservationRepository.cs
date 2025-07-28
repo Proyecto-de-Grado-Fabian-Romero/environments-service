@@ -27,4 +27,8 @@ public interface IReservationRepository
     Task<List<Reservation>> GetConflictsAsync(Guid environmentId, long start, long end);
 
     Task<List<Reservation>> GetByOwnerAndDayAsync(Guid ownerId, long timestamp);
+
+    Task AddPaymentAsync(Guid reservationId, ReservationPayment payment);
+
+    Task MarkPaymentAsPaidAsync(Guid reservationId, string method, long paidAt);
 }

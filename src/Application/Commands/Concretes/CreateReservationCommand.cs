@@ -158,7 +158,6 @@ public class CreateReservationCommand(
 
         if (environment.InstantBooking)
         {
-            Console.WriteLine("hecho");
             await _adminServiceAdapter.RequestOwnerIncomeAsync(
                 environment.OwnerId,
                 reservation.Id,

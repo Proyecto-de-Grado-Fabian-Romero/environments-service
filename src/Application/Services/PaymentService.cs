@@ -1,41 +1,64 @@
-using System;
+using EnvironmentsService.Src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
 using EnvironmentsService.Src.Application.DTOs.Responses;
 using EnvironmentsService.Src.Application.Interfaces;
+using EnvironmentsService.Src.Domain.Entities.Booking;
 using EnvironmentsService.Src.Domain.Interfaces;
 
 namespace EnvironmentsService.Src.Application.Services;
 
-public class PaymentService : IPaymentService
+public class PaymentService(IPaymentGateway gateway, IReservationRepository repo) : IPaymentService
 {
-    private readonly IEnumerable<IPaymentGateway> _gateways;
-    private readonly IReservationRepository _repo;
+    private readonly IReservationRepository _repo = repo;
+    private readonly IPaymentGateway _gateway = gateway;
 
-    public PaymentService(IEnumerable<IPaymentGateway> gateways, IReservationRepository repo)
+    public async Task<PaymentUrlDto> CreatePayment(CreatePaymentWithClientDto dto, string gatewayName)
     {
-        _gateways = gateways;
-        _repo = repo;
-    }
+        var reservation = await _repo.GetByPublicIdAsync(dto.ReservationId) ?? throw new Exception("Reservation not found");
+        await _repo.AddPaymentAsync(reservation.PublicId, new ReservationPayment
+        {
+            Amount = reservation.TotalPrice,
+            Currency = reservation.Currency,
+            Method = "QR",
+            Status = "paid",
+            PaidAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+        });
+        await _repo.MarkPaymentAsPaidAsync(reservation.PublicId, "Libelula", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        await _repo.SaveChangesAsync();
 
-    public async Task<PaymentUrlDto> CreatePayment(Guid reservationId, string gatewayName)
-    {
-        var reserva = await _repo.GetByPublicIdAsync(reservationId) ?? throw new Exception("Reservation not found");
         var request = new PaymentRequestDto
         {
-            ReservationId = reserva.Id,
-            ClientEmail = reserva.RenterEmail,
-            // ClientFirstName = reserva.ClientFirstName,
-            // ClientLastName = reserva.ClientLastName,
-            ClientFullName = reserva.ClientFullName,
-            ClientCI = reserva.ClientCI,
-            ClientNIT = reserva.ClientNIT,
-            TotalPrice = reserva.TotalPrice
+            ReservationId = reservation.Id,
+            ClientEmail = dto.ClientEmail,
+            ClientCI = dto.ClientCI,
+            ClientNIT = dto.ClientNIT,
+            ClientFullName = dto.ClientFullName,
+            TotalPrice = reservation.TotalPrice,
         };
 
-        var gateway = _gateways.FirstOrDefault(g => g.GatewayName.Equals(gatewayName, StringComparison.OrdinalIgnoreCase));
-        if (gateway == null) throw new Exception("Payment gateway not supported");
+        return await _gateway.GeneratePaymentUrlAsync(request);
+    }
 
-        return await gateway.GeneratePaymentUrlAsync(request);
+    public async Task<PaymentStatusResponse> CheckAndUpdatePaymentAsync(Guid reservationId)
+    {
+        var reservation = await _repo.GetByPublicIdAsync(reservationId)
+            ?? throw new Exception("Reservation not found");
+
+        var payment = reservation.Payments.FirstOrDefault(p => p.Status == "pending");
+        if (payment == null)
+        {
+            throw new Exception("No pending payment found");
+        }
+
+        var result = await _gateway.CheckPaymentStatusAsync(reservation.Id.ToString());
+
+        if (result.Status == "paid")
+        {
+            await _repo.MarkPaymentAsPaidAsync(reservation.Id, payment.Method, result.PaidAt!);
+            reservation.Status = "paid";
+            await _repo.SaveChangesAsync();
+        }
+
+        return result;
     }
 }
-

@@ -122,10 +122,17 @@ public class ReservationsController(IReservationService service, IPaymentService
         }
     }
 
-    [HttpPost("{publicId:guid}/pago")]
-    public async Task<IActionResult> IniciarPago(Guid publicId, [FromQuery] string gateway = "Libelula")
+    [HttpPost("pay")]
+    public async Task<IActionResult> IniciarPago([FromBody] CreatePaymentWithClientDto dto, [FromQuery] string gateway = "Libelula")
     {
-        var url = await _paymentService.CreatePayment(publicId, gateway);
+        var url = await _paymentService.CreatePayment(dto, gateway);
         return Ok(url);
+    }
+
+    [HttpGet("payments/status/{reservationId}")]
+    public async Task<IActionResult> CheckStatus(Guid reservationId)
+    {
+        var result = await _paymentService.CheckAndUpdatePaymentAsync(reservationId);
+        return Ok(result);
     }
 }

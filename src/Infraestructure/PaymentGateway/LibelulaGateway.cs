@@ -51,4 +51,42 @@ public class LibelulaGateway(HttpClient httpClient, IConfiguration config) : IPa
 
         return new PaymentUrlDto { Url = doc.RootElement.GetProperty("url_pasarela_pagos").GetString() ?? string.Empty };
     }
+
+    public async Task<PaymentStatusResponse> CheckPaymentStatusAsync(string identificador)
+    {
+        var payload = new
+        {
+            appkey = _config["Libelula:AppKey"],
+            identificador,
+        };
+
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync("https://api.libelula.bo/rest/deuda/consultar_deudas/por_identificador", content);
+        var body = await response.Content.ReadAsStringAsync();
+
+        using var doc = JsonDocument.Parse(body);
+
+        var datos = doc.RootElement.GetProperty("datos")[0];
+        var pagado = datos.GetProperty("pagado").GetBoolean();
+
+        string? invoiceUrl = null;
+        if (pagado && datos.TryGetProperty("facturas", out var facturas) && facturas.GetArrayLength() > 0)
+        {
+            invoiceUrl = facturas[0].GetProperty("url").GetString();
+        }
+
+        long? paidAt = null;
+        if (pagado && datos.TryGetProperty("fecha_pago", out var fecha))
+        {
+            var parsedDate = DateTime.Parse(fecha.GetString()!).ToUniversalTime();
+            paidAt = new DateTimeOffset(parsedDate).ToUnixTimeMilliseconds();
+        }
+
+        return new PaymentStatusResponse
+        {
+            Status = pagado ? "paid" : "pending",
+            InvoiceUrl = invoiceUrl ?? string.Empty,
+            PaidAt = paidAt ?? 0,
+        };
+    }
 }

@@ -6,9 +6,9 @@ public class PaymentRequestDto
 
     public string ClientEmail { get; set; } = string.Empty;
 
-    public string ClientCI { get; set; } = string.Empty;
+    public string ClientCI { get; set; } = "0";
 
-    public string ClientNIT { get; set; } = string.Empty;
+    public string ClientNIT { get; set; } = "0";
 
     public string ClientFullName { get; set; } = string.Empty;
 
