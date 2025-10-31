@@ -126,4 +126,22 @@ public class ReservationRepository(DbContext context) : IReservationRepository
             .ThenInclude(e => e.Photos)
             .ToListAsync();
     }
+
+    public async Task AddPaymentAsync(Guid reservationId, ReservationPayment payment)
+    {
+        var reservation = await _context.Set<Reservation>()
+            .Include(r => r.Payments)
+            .FirstOrDefaultAsync(r => r.PublicId == reservationId) ?? throw new Exception("Reservation not found");
+        reservation.Payments.Add(payment);
+    }
+
+    public async Task MarkPaymentAsPaidAsync(Guid reservationId, string method, long paidAt)
+    {
+        var reservation = await _context.Set<Reservation>()
+            .Include(r => r.Payments)
+            .FirstOrDefaultAsync(r => r.PublicId == reservationId) ?? throw new Exception("Reservation not found");
+        var payment = reservation.Payments.FirstOrDefault(p => p.Method == method && p.Status == "pending") ?? throw new Exception("No pending payment found for method: " + method);
+        payment.Status = "paid";
+        payment.PaidAt = paidAt;
+    }
 }

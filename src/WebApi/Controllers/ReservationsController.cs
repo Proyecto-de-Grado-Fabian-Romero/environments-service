@@ -7,9 +7,10 @@ namespace EnvironmentsService.Src.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ReservationsController(IReservationService service) : ControllerBase
+public class ReservationsController(IReservationService service, IPaymentService paymentService) : ControllerBase
 {
     private readonly IReservationService _service = service;
+    private readonly IPaymentService _paymentService = paymentService;
 
     [HttpPost]
     public async Task<IActionResult> CreateReservation([FromBody] CreateReservationRequest request)
@@ -119,5 +120,19 @@ public class ReservationsController(IReservationService service) : ControllerBas
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpPost("pay")]
+    public async Task<IActionResult> IniciarPago([FromBody] CreatePaymentWithClientDto dto, [FromQuery] string gateway = "Libelula")
+    {
+        var url = await _paymentService.CreatePayment(dto, gateway);
+        return Ok(url);
+    }
+
+    [HttpGet("payments/status/{reservationId}")]
+    public async Task<IActionResult> CheckStatus(Guid reservationId)
+    {
+        var result = await _paymentService.CheckAndUpdatePaymentAsync(reservationId);
+        return Ok(result);
     }
 }

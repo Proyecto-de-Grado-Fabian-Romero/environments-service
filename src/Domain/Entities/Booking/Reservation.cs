@@ -12,6 +12,8 @@ public class Reservation
 
     public Guid RenterId { get; set; }
 
+    public string RenterEmail { get; set; } = string.Empty;
+
     public Guid OwnerId { get; set; }
 
     public ICollection<ReservationTimeRange> TimeRanges { get; set; } = [];

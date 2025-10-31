@@ -8,6 +8,7 @@ using EnvironmentsService.Src.Application.Validator;
 using EnvironmentsService.Src.Domain.Interfaces;
 using EnvironmentsService.Src.Infraestructure.Adapters;
 using EnvironmentsService.Src.Infraestructure.Data;
+using EnvironmentsService.Src.Infraestructure.PaymentGateway;
 using EnvironmentsService.Src.Infraestructure.Repositories;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -82,6 +83,10 @@ builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<IImageStorageServiceAdapter, ImageStorageServiceAdapter>();
 builder.Services.AddScoped<IObjectDetectionAdapter, ObjectDetectionAdapter>();
 builder.Services.AddScoped<IAdminServiceAdapter, AdminServiceAdapter>();
+
+builder.Services.AddHttpClient<LibelulaGateway>();
+builder.Services.AddScoped<IPaymentGateway, LibelulaGateway>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateReservationRequestValidator>();
 builder.Services.AddFluentValidationAutoValidation();
