@@ -19,16 +19,11 @@ public class EnvironmentsAmqpConsumer(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Console.WriteLine($"[Consumer] Connecting to RabbitMQ: {_opt.ConnectionString}");
-
         var f = new ConnectionFactory { Uri = new Uri(_opt.ConnectionString) };
         _conn = f.CreateConnection();
         _ch = _conn.CreateModel();
 
         _ch.ExchangeDeclare(_opt.Exchange, ExchangeType.Direct, durable: true, autoDelete: false);
-        Console.WriteLine($"{_opt.Exchange}");
-
-        Console.WriteLine("🌍 [EnvironmentsConsumer] Starting queue declarations...");
 
         _ch.QueueDeclare(
             "environments.get.details",
@@ -92,24 +87,18 @@ public class EnvironmentsAmqpConsumer(
                 );
 
                 _ch!.BasicAck(ea.DeliveryTag, false);
-                Console.WriteLine(
-                    $"✅ [GetDetails] Response sent for CorrelationId={ea.BasicProperties.CorrelationId}"
-                );
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"❌ [GetDetails] Error: {ex.Message}");
                 _ch.BasicNack(ea.DeliveryTag, false, false);
             }
         };
 
         _ch.BasicConsume("environments.get.details", autoAck: false, getDetailsConsumer);
-        Console.WriteLine("🟢 [GetDetails] Consumer ready on queue 'environments.get.details'");
 
         var updateObjectsConsumer = new EventingBasicConsumer(_ch);
         updateObjectsConsumer.Received += async (model, ea) =>
         {
-            Console.WriteLine($"📥 [UpdateObjects] Message received.");
             try
             {
                 var body = ea.Body.ToArray();
@@ -125,28 +114,18 @@ public class EnvironmentsAmqpConsumer(
                 );
 
                 _ch.BasicAck(ea.DeliveryTag, false);
-                Console.WriteLine(
-                    $"✅ [UpdateObjects] Processed environmentId={message.EnvironmentPublicId}"
-                );
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"❌ [UpdateObjects] Error: {ex.Message}");
                 _ch.BasicNack(ea.DeliveryTag, false, false);
             }
         };
 
         _ch.BasicConsume("environments.update.objects", false, updateObjectsConsumer);
-        Console.WriteLine(
-            "🟢 [UpdateObjects] Consumer ready on queue 'environments.update.objects'"
-        );
 
         var uploadTourConsumer = new EventingBasicConsumer(_ch);
         uploadTourConsumer.Received += async (model, ea) =>
         {
-            Console.WriteLine(
-                $"📥 [UploadTour] Message received. CorrelationId={ea.BasicProperties.CorrelationId}"
-            );
             try
             {
                 var body = ea.Body.ToArray();
@@ -162,11 +141,9 @@ public class EnvironmentsAmqpConsumer(
                 var response = new UploadTourResponse { Success = true };
                 var responseBody = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(response);
                 var responseProps = _ch.CreateBasicProperties();
-                Console.WriteLine("🚀 [UploadTour] Preparing success response...");
                 responseProps.CorrelationId = ea.BasicProperties.CorrelationId;
                 responseProps.DeliveryMode = 2;
 
-                Console.WriteLine("🚀 [UploadTour] Sending success response...");
                 _ch.BasicPublish(
                     _opt.Exchange,
                     "environments.tours.upload.response",
@@ -175,13 +152,9 @@ public class EnvironmentsAmqpConsumer(
                 );
 
                 _ch.BasicAck(ea.DeliveryTag, false);
-                Console.WriteLine(
-                    $"✅ [UploadTour] Response sent for CorrelationId={ea.BasicProperties.CorrelationId}"
-                );
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ [UploadTour] Error: {ex.Message}");
                 var errorResponse = new UploadTourResponse { Success = false, Error = ex.Message };
                 var responseBody = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
                     errorResponse
@@ -200,9 +173,6 @@ public class EnvironmentsAmqpConsumer(
         };
 
         _ch.BasicConsume("environments.tours.upload", false, uploadTourConsumer);
-        Console.WriteLine("🟢 [UploadTour] Consumer ready on queue 'environments.tours.upload'");
-
-        Console.WriteLine("🚀 [EnvironmentsConsumer] All consumers initialized successfully!");
 
         while (!stoppingToken.IsCancellationRequested)
         {

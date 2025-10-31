@@ -37,7 +37,6 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
         }
         catch
         {
-            Console.WriteLine("❌ Error al inicializar RabbitMQMessageBus");
             throw;
         }
     }
@@ -46,8 +45,6 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
     {
         try
         {
-            Console.WriteLine($"📤 Publicando mensaje en la cola: {queueName}");
-
             _channel.QueueDeclare(
                 queue: queueName,
                 durable: true,
@@ -65,13 +62,10 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
                 body: body
             );
 
-            Console.WriteLine($"✅ Mensaje publicado correctamente en {queueName}");
-
             await Task.CompletedTask;
         }
         catch
         {
-            Console.WriteLine($"❌ Error publicando mensaje en la cola {queueName}");
             throw;
         }
     }
@@ -88,10 +82,6 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
 
         try
         {
-            Console.WriteLine(
-                $"📨 Enviando Request ID {requestId} a {requestQueue} con ReplyTo {replyQueue}"
-            );
-
             // Aseguramos que ambas colas existen
             _channel.QueueDeclare(requestQueue, durable: true, exclusive: false, autoDelete: false);
             _channel.QueueDeclare(replyQueue, durable: true, exclusive: false, autoDelete: false);
@@ -110,16 +100,11 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
                 body: body
             );
 
-            Console.WriteLine("📤 Request enviado. Esperando respuesta...");
-
             var responseJson = await tcs.Task;
-            Console.WriteLine($"📥 Respuesta recibida para {requestId}");
-
             return JsonSerializer.Deserialize<TResponse>(responseJson)!;
         }
         catch
         {
-            Console.WriteLine($"❌ Error en RequestAsync para la cola {requestQueue}");
             throw;
         }
         finally
@@ -130,16 +115,10 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
 
     private void StartReplyConsumer()
     {
-        Console.WriteLine($"👂 Iniciando consumidor de respuestas en {_replyQueueName}");
-
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (model, ea) =>
         {
             var correlationId = ea.BasicProperties.CorrelationId;
-
-            Console.WriteLine(
-                $"📩 Mensaje recibido en ReplyQueue {_replyQueueName} con CorrelationId {correlationId}"
-            );
 
             if (_pendingRequests.TryGetValue(correlationId, out var tcs))
             {
@@ -147,13 +126,9 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
                 var response = Encoding.UTF8.GetString(body);
                 tcs.SetResult(response);
                 _pendingRequests.Remove(correlationId);
-                Console.WriteLine("✅ Respuesta procesada para {CorrelationId}", correlationId);
             }
             else
             {
-                Console.WriteLine(
-                    $"⚠️ No se encontró Request pendiente para CorrelationId {correlationId}"
-                );
             }
         };
 
@@ -162,7 +137,6 @@ public class RabbitMQMessageBus : IMessageBus, IDisposable
 
     public void Dispose()
     {
-        Console.WriteLine("♻️ Cerrando conexión RabbitMQ...");
         _channel?.Close();
         _connection?.Close();
     }

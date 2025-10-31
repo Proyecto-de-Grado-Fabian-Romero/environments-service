@@ -267,12 +267,10 @@ public class ReservationRepository(DbContext context) : IReservationRepository
         {
             if (type == "mine")
             {
-                Console.WriteLine("Filtering by owner");
                 query = query.Where(r => r.OwnerId == userId);
             }
             else
             {
-                Console.WriteLine("Filtering by renter");
                 query = query.Where(r => r.RenterId == userId);
             }
         }
@@ -286,42 +284,25 @@ public class ReservationRepository(DbContext context) : IReservationRepository
             .ToOffset(TimeSpan.FromHours(-4))
             .Date;
 
-        Console.WriteLine($"=== FILTERING BY DAY ===");
-        Console.WriteLine($"Scheduled Day: {scheduledDay:yyyy-MM-dd}");
-        Console.WriteLine($"Scheduled Day Timestamp: {scheduledDayTimestamp}");
-
         var startOfDayTimestamp = new DateTimeOffset(scheduledDay).ToUnixTimeSeconds();
         var endOfDayTimestamp = new DateTimeOffset(scheduledDay.AddDays(1)).ToUnixTimeSeconds();
 
-        Console.WriteLine($"Start of Day Timestamp: {startOfDayTimestamp}");
-        Console.WriteLine($"End of Day Timestamp: {endOfDayTimestamp}");
-        Console.WriteLine($"Start of Day: {DateTimeOffset.FromUnixTimeSeconds(startOfDayTimestamp):yyyy-MM-dd HH:mm:ss}");
-        Console.WriteLine($"End of Day: {DateTimeOffset.FromUnixTimeSeconds(endOfDayTimestamp):yyyy-MM-dd HH:mm:ss}");
-
         // Log todas las reservas antes del filtro por día
         var allReservationsBeforeDayFilter = await query.ToListAsync();
-        Console.WriteLine($"=== RESERVATIONS BEFORE DAY FILTER: {allReservationsBeforeDayFilter.Count} ===");
 
         foreach (var reservation in allReservationsBeforeDayFilter)
         {
-            Console.WriteLine($"Reservation ID: {reservation.PublicId}, Status: {reservation.Status}, IsInstant: {reservation.IsInstant}");
-            Console.WriteLine($"TimeRanges Count: {reservation.TimeRanges?.Count ?? 0}");
-
             if (reservation.TimeRanges != null && reservation.TimeRanges.Any())
             {
                 foreach (var timeRange in reservation.TimeRanges)
                 {
                     var isInRange = timeRange.StartDate >= startOfDayTimestamp && timeRange.StartDate < endOfDayTimestamp;
-
-                    Console.WriteLine($"  - TimeRange: {timeRange.StartDate} to {timeRange.EndDate}");
-                    Console.WriteLine($"    Is in target day range: {isInRange}");
                 }
             }
             else
             {
                 Console.WriteLine("  - NO TIMERANGES");
             }
-            Console.WriteLine("---");
         }
 
         query = query.Where(r =>
@@ -331,17 +312,11 @@ public class ReservationRepository(DbContext context) : IReservationRepository
         );
 
         var reservationsAfterDayFilter = await query.ToListAsync();
-        Console.WriteLine($"=== RESERVATIONS AFTER DAY FILTER: {reservationsAfterDayFilter.Count} ===");
 
         var timezoneOffset = TimeSpan.FromHours(-4);
         var currentTimeInTimezone = DateTimeOffset.UtcNow.ToOffset(timezoneOffset);
         var sixteenMinutesAgo = currentTimeInTimezone.AddMinutes(-16);
         var timeLimitTimestamp = sixteenMinutesAgo.ToUnixTimeSeconds();
-
-        Console.WriteLine($"=== INSTANT BOOKING FILTER ===");
-        Console.WriteLine($"Current Time (-4): {currentTimeInTimezone:yyyy-MM-dd HH:mm:ss}");
-        Console.WriteLine($"16 Minutes Ago: {sixteenMinutesAgo:yyyy-MM-dd HH:mm:ss}");
-        Console.WriteLine($"Time Limit Timestamp: {timeLimitTimestamp}");
 
         query = query.Where(r =>
             !r.IsInstant
@@ -355,30 +330,24 @@ public class ReservationRepository(DbContext context) : IReservationRepository
         );
 
         var reservationsAfterAllFilters = await query.ToListAsync();
-        Console.WriteLine($"=== RESERVATIONS AFTER ALL FILTERS: {reservationsAfterAllFilters.Count} ===");
 
         foreach (var reservation in reservationsAfterAllFilters)
         {
-            Console.WriteLine($"Reservation ID: {reservation.PublicId}, Status: {reservation.Status}, IsInstant: {reservation.IsInstant}, CreatedAt: {reservation.CreatedAt}");
             if (reservation.IsInstant && reservation.Status.ToLower() == "confirmed")
             {
                 var createdAt = DateTimeOffset.FromUnixTimeSeconds(reservation.CreatedAt);
                 var canShow = reservation.CreatedAt > timeLimitTimestamp;
-                Console.WriteLine($"  - Instant Confirmed Check: CreatedAt={createdAt:yyyy-MM-dd HH:mm:ss}, CanShow={canShow}");
             }
         }
 
         var totalItems = await query.CountAsync();
-        Console.WriteLine($"=== FINAL TOTAL ITEMS: {totalItems} ===");
 
         if (totalItems == 0)
         {
-            Console.WriteLine("=== NO RESERVATIONS FOUND ===");
             return (new List<Reservation>(), 0);
         }
 
         var now = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(-4)).ToUnixTimeSeconds();
-        Console.WriteLine($"Now Timestamp (ms): {now}");
 
         var reservations = await query
             .OrderBy(r => r.TimeRanges.Min(tr => tr.StartDate) < now)
@@ -386,19 +355,6 @@ public class ReservationRepository(DbContext context) : IReservationRepository
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToListAsync();
-
-        Console.WriteLine($"=== FINAL RESERVATIONS TO RETURN: {reservations.Count} ===");
-        foreach (var reservation in reservations)
-        {
-            var minStartDate = reservation.TimeRanges.Min(tr => tr.StartDate);
-            var minStartDateTime = DateTimeOffset.FromUnixTimeSeconds(minStartDate);
-            var isPast = minStartDate < now / 1000; // Convertir now a segundos para comparar
-
-            Console.WriteLine($"Reservation ID: {reservation.PublicId}");
-            Console.WriteLine($"  - Min Start Date: {minStartDateTime:yyyy-MM-dd HH:mm:ss} (Timestamp: {minStartDate})");
-            Console.WriteLine($"  - Is Past: {isPast}");
-            Console.WriteLine($"  - Status: {reservation.Status}, IsInstant: {reservation.IsInstant}");
-        }
 
         return (reservations, totalItems);
     }

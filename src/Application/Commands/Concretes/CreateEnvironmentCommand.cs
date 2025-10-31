@@ -49,10 +49,10 @@ public class CreateEnvironmentCommand(
             var areaKeys = _dto.Areas.Select(a => a.AreaPublicKey).ToList();
             var areaMap = await _areaRepository.GetIdsByPublicKeysAsync(areaKeys);
             environment.EnvironmentAreas = [.. _dto.Areas.Select(a => new EnvironmentArea
-                {
-                    AreaId = areaMap[a.AreaPublicKey],
-                    Quantity = a.Quantity,
-                })];
+            {
+                AreaId = areaMap[a.AreaPublicKey],
+                Quantity = a.Quantity,
+            })];
         }
 
         if (environment.PricingPolicies != null)
