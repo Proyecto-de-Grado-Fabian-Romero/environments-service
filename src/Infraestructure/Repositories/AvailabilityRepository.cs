@@ -24,8 +24,8 @@ public class AvailabilityRepository(AppDbContext context) : IAvailabilityReposit
 
     public async Task<IEnumerable<Reservation>> GetReservationsAsync(Guid environmentId, DateTime start, DateTime end)
     {
-        var startUnix = new DateTimeOffset(start).ToUnixTimeMilliseconds();
-        var endUnix = new DateTimeOffset(end).ToUnixTimeMilliseconds();
+        var startUnix = new DateTimeOffset(start).ToUnixTimeSeconds();
+        var endUnix = new DateTimeOffset(end).ToUnixTimeSeconds();
 
         var excludedStatuses = new[] { "rejected", "cancelled" };
 

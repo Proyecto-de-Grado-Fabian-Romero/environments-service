@@ -1,22 +1,27 @@
 using EnvironmentsService.Src.Application.DTOs.Responses;
 using EnvironmentsService.Src.Application.Interfaces;
+using EnvironmentsService.Src.Domain.Events;
 
 namespace EnvironmentsService.Src.Infraestructure.Adapters;
 
-public class ObjectDetectionAdapter(HttpClient client) : IObjectDetectionAdapter
+public class ObjectDetectionAdapter(IMessageBus messageBus) : IObjectDetectionAdapter
 {
-    private readonly HttpClient _client = client;
+    private readonly IMessageBus _messageBus = messageBus;
 
     public async Task<Dictionary<string, int>> DetectFromImagesAsync(List<string> imageUrls)
     {
-        var requestUrl = "/detect/";
+        var request = new DetectionRequest
+        {
+            ImageUrls = imageUrls,
+            ReplyTo = "detection_responses",
+        };
 
-        var response = await _client.PostAsJsonAsync(requestUrl, imageUrls);
-        response.EnsureSuccessStatusCode();
+        var response = await _messageBus.RequestAsync<DetectionRequest, DetectionResponse>(
+            request,
+            "detection_requests",
+            "detection_responses"
+        );
 
-        var raw = await response.Content.ReadFromJsonAsync<Dictionary<string, DetectedObjectResponse>>();
-
-        return raw?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count)
-               ?? [];
+        return response.DetectedObjects;
     }
 }

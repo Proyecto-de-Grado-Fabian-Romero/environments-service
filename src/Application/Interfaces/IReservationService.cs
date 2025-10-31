@@ -8,13 +8,34 @@ public interface IReservationService
 {
     Task<ReservationResponse> CreateAsync(CreateReservationRequest request, Guid renterId);
 
-    Task<PagedResult<ReservationResponse>> GetByUserAsync(Guid userId, string? status, int page, int limit);
+    Task<PagedResult<ReservationResponse>> GetByUserAsync(
+        Guid userId,
+        string? status,
+        string? type,
+        int page,
+        int limit
+    );
 
     Task<ReservationResponse?> GetByPublicIdAsync(Guid publicId);
 
-    Task<ReservationResponse> UpdateStatusAsync(Guid reservationPublicId, Guid ownerId, string newStatus);
+    Task<ReservationResponse> UpdateStatusAsync(
+        Guid reservationPublicId,
+        Guid ownerId,
+        string newStatus
+    );
 
-    Task<List<ReservationResponse>> GetConflictingReservationsAsync(Guid environmentId, long start, long end);
+    Task<List<ReservationResponse>> GetConflictingReservationsAsync(
+        Guid environmentId,
+        long start,
+        long end
+    );
 
-    Task<List<ReservationResponse>> GetByOwnerAndDayAsync(Guid ownerId, long timestamp);
+    Task<PagedResult<ReservationResponse>> GetByUserAndDayAsync(
+        Guid userId,
+        long scheduledDayTimestamp,
+        string? status,
+        string? type,
+        int page,
+        int limit
+    );
 }

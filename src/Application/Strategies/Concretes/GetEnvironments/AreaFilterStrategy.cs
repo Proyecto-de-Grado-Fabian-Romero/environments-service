@@ -6,17 +6,33 @@ namespace EnvironmentsService.Src.Application.Strategies.Concretes.GetEnvironmen
 public class AreaFilterStrategy : IEnvironmentFilterStrategy
 {
     public IQueryable<Domain.Entities.Environment> Apply(
-            IQueryable<Domain.Entities.Environment> query,
-            GetAvailableEnvironmentsRequest request)
+        IQueryable<Domain.Entities.Environment> query,
+        GetAvailableEnvironmentsRequest request
+    )
     {
-        if (request.Areas?.Count > 0)
+        if (request?.Areas == null || !request.Areas.Any())
         {
-            foreach (var (areaPublicKey, minQuantity) in request.Areas)
+            return query;
+        }
+
+        foreach (var areaReq in request.Areas)
+        {
+            var areaPublicKey = (areaReq.AreaPublicKey ?? string.Empty).Trim();
+            var minQuantity = areaReq.MinQuantity;
+
+            if (string.IsNullOrEmpty(areaPublicKey))
             {
-                query = query.Where(e =>
-                    e.EnvironmentAreas.Any(ea =>
-                        ea.Area.PublicKey == areaPublicKey && ea.Quantity >= minQuantity));
+                continue;
             }
+
+            query = query.Where(e =>
+                e.EnvironmentAreas.Any(ea =>
+                    ea.Area != null
+                    && ea.Area.PublicKey != null
+                    && ea.Area.PublicKey.Trim().ToLower() == areaPublicKey.ToLower()
+                    && ea.Quantity >= minQuantity
+                )
+            );
         }
 
         return query;

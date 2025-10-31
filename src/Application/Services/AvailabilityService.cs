@@ -16,8 +16,8 @@ public class AvailabilityService(
 
     public async Task<List<TimeRange>> GetUnavailableTimeSlotsAsync(Guid envId, long startTimestamp, long endTimestamp)
     {
-        var start = DateTimeOffset.FromUnixTimeMilliseconds(startTimestamp).UtcDateTime;
-        var end = DateTimeOffset.FromUnixTimeMilliseconds(endTimestamp).UtcDateTime;
+        var start = DateTimeOffset.FromUnixTimeSeconds(startTimestamp).UtcDateTime;
+        var end = DateTimeOffset.FromUnixTimeSeconds(endTimestamp).UtcDateTime;
 
         var nonAvailabilities = await _availRepo.GetNonAvailabilitiesAsync(envId, start, end);
         var reservations = await _availRepo.GetReservationsAsync(envId, start, end);

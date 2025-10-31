@@ -7,7 +7,8 @@ namespace EnvironmentsService.Src.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ReservationsController(IReservationService service, IPaymentService paymentService) : ControllerBase
+public class ReservationsController(IReservationService service, IPaymentService paymentService)
+    : ControllerBase
 {
     private readonly IReservationService _service = service;
     private readonly IPaymentService _paymentService = paymentService;
@@ -36,9 +37,11 @@ public class ReservationsController(IReservationService service, IPaymentService
 
     [HttpGet("mine")]
     public async Task<IActionResult> GetUserReservations(
-    [FromQuery] string? status,
-    [FromQuery] int page = 1,
-    [FromQuery] int limit = 10)
+        [FromQuery] string? status,
+        [FromQuery] string? type,
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 10
+    )
     {
         var publicIdClaim = Request.Cookies["publicId"];
 
@@ -47,7 +50,7 @@ public class ReservationsController(IReservationService service, IPaymentService
             return Unauthorized("Invalid or missing user public_id");
         }
 
-        var result = await _service.GetByUserAsync(userPublicId, status, page, limit);
+        var result = await _service.GetByUserAsync(userPublicId, status, type, page, limit);
         return Ok(result);
     }
 
@@ -71,7 +74,10 @@ public class ReservationsController(IReservationService service, IPaymentService
     }
 
     [HttpPatch("{publicId:guid}/status")]
-    public async Task<IActionResult> UpdateStatus(Guid publicId, [FromBody] UpdateReservationStatusDto request)
+    public async Task<IActionResult> UpdateStatus(
+        Guid publicId,
+        [FromBody] UpdateReservationStatusDto request
+    )
     {
         var publicIdClaim = Request.Cookies["publicId"];
 
@@ -94,38 +100,49 @@ public class ReservationsController(IReservationService service, IPaymentService
 
     [HttpGet("conflicts")]
     public async Task<IActionResult> GetConflictingReservations(
-    [FromQuery] Guid environmentId,
-    [FromQuery] long start,
-    [FromQuery] long end)
+        [FromQuery] Guid environmentId,
+        [FromQuery] long start,
+        [FromQuery] long end
+    )
     {
         var conflicts = await _service.GetConflictingReservationsAsync(environmentId, start, end);
         return Ok(conflicts);
     }
 
-    [HttpGet("day")]
-    public async Task<IActionResult> GetReservationsByDay([FromQuery] long timestamp)
+    [HttpGet("mine/by-day")]
+    public async Task<IActionResult> GetUserReservationsByDay(
+        [FromQuery] long scheduledDayTimestamp,
+        [FromQuery] string? status,
+        [FromQuery] string? type,
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 10
+    )
     {
         var publicIdClaim = Request.Cookies["publicId"];
+
         if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
         {
             return Unauthorized("Invalid or missing user public_id");
         }
 
-        try
-        {
-            var reservations = await _service.GetByOwnerAndDayAsync(userPublicId, timestamp);
-            return Ok(reservations);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var result = await _service.GetByUserAndDayAsync(
+            userPublicId,
+            scheduledDayTimestamp,
+            status,
+            type,
+            page,
+            limit
+        );
+        return Ok(result);
     }
 
     [HttpPost("pay")]
-    public async Task<IActionResult> IniciarPago([FromBody] CreatePaymentWithClientDto dto, [FromQuery] string gateway = "Libelula")
+    public async Task<IActionResult> IniciarPago(
+        [FromBody] CreatePaymentWithClientDto dto,
+        [FromQuery] string fechaVencimiento
+    )
     {
-        var url = await _paymentService.CreatePayment(dto, gateway);
+        var url = await _paymentService.CreatePayment(dto, fechaVencimiento);
         return Ok(url);
     }
 

@@ -9,24 +9,45 @@ public interface IReservationRepository
 
     Task<IDbContextTransaction> BeginTransactionAsync();
 
-    Task<bool> ExistsOverlappingReservationAsync(Guid environmentId, long start, long end);
+    Task<bool> ExistsOverlappingReservationAsync(
+        Guid environmentId,
+        long start,
+        long end,
+        bool isInstant
+    );
 
     Task<List<Reservation>> GetActiveReservationsByRenterAsync(Guid renterId);
 
     Task SaveChangesAsync();
 
-    Task<(List<Reservation>, int)> GetUserReservationsPaginatedAsync(Guid userId, string status, int page, int limit);
+    Task<(List<Reservation>, int)> GetUserReservationsPaginatedAsync(
+        Guid userId,
+        string? status,
+        string? type, // "mine" | "others" | null/other
+        int page,
+        int limit
+    );
 
     Task<Reservation?> GetByPublicIdAsync(Guid publicId);
+
+    Task<Reservation?> GetByIdAsync(Guid publicId);
 
     Task<bool> ExistsOverlappingConfirmedAsync(
         Guid environmentId,
         Guid currentReservationId,
-        ICollection<ReservationTimeRange> timeRanges);
+        ICollection<ReservationTimeRange> timeRanges
+    );
 
     Task<List<Reservation>> GetConflictsAsync(Guid environmentId, long start, long end);
 
-    Task<List<Reservation>> GetByOwnerAndDayAsync(Guid ownerId, long timestamp);
+    Task<(List<Reservation>, int)> GetUserReservationsByDayAsync(
+        Guid userId,
+        long scheduledDayTimestamp,
+        string? status,
+        string? type,
+        int page,
+        int limit
+    );
 
     Task AddPaymentAsync(Guid reservationId, ReservationPayment payment);
 

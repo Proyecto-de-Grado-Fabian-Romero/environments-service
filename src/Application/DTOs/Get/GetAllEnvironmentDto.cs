@@ -32,6 +32,8 @@ public class GetAllEnvironmentDto
 
     public string RentalUnit { get; set; } = "hour";
 
+    public bool Hidden { get; set; } = false;
+
     public List<string> PhotoUrls { get; set; } = [];
 
     public List<PricingPolicyDto> PricingPolicies { get; set; } = [];

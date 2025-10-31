@@ -11,7 +11,10 @@ public class ToursController(ITourService service) : ControllerBase
     private readonly ITourService _service = service;
 
     [HttpPost]
-    public async Task<IActionResult> UploadTour([FromQuery] Guid environmentPublicId, [FromBody] TourUploadDto dto)
+    public async Task<IActionResult> UploadTour(
+        [FromQuery] Guid environmentPublicId,
+        [FromBody] TourUploadDto dto
+    )
     {
         var tour = await _service.CreateTourAsync(environmentPublicId, dto.Scenes);
         return Ok(tour);

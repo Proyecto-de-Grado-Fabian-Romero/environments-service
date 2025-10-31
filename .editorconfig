@@ -21,3 +21,13 @@ dotnet_diagnostic.SA1602.severity = none
 dotnet_diagnostic.SA1200.severity = none
 
 dotnet_diagnostic.CA1869.severity = none
+
+dotnet_diagnostic.CS8602.severity = none
+
+dotnet_diagnostic.SA1111.severity = none
+
+dotnet_diagnostic.SA1202.severity = none
+
+dotnet_diagnostic.SA1313.severity = none
+
+dotnet_diagnostic.CS8634.severity = none

@@ -3,6 +3,7 @@ using EnvironmentsService.Src.Application.Commands.Concretes;
 using EnvironmentsService.Src.Application.DTOs.Create;
 using EnvironmentsService.Src.Application.DTOs.Get;
 using EnvironmentsService.Src.Application.DTOs.GetRequest;
+using EnvironmentsService.Src.Application.DTOs.Update;
 using EnvironmentsService.Src.Application.Interfaces;
 using EnvironmentsService.Src.Domain.Interfaces;
 
@@ -30,13 +31,25 @@ public class EnvironmentService(
         GetAvailableEnvironmentsRequest request,
         int page,
         int limit,
-        Guid? userPublicId)
+        Guid? userPublicId
+    )
     {
-        var command = new GetAllEnvironmentsCommand(_repository, _mapper, request, page, limit, userPublicId);
+        var command = new GetAllEnvironmentsCommand(
+            _repository,
+            _mapper,
+            request,
+            page,
+            limit,
+            userPublicId
+        );
         return await command.ExecuteAsync();
     }
 
-    public async Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(Guid publicUserId, int page, int limit)
+    public async Task<PagedResult<GetAllEnvironmentDto>> GetOwnerEnvironmentsAsync(
+        Guid publicUserId,
+        int page,
+        int limit
+    )
     {
         var command = new GetOwnerEnvironments(_repository, _mapper, publicUserId, page, limit);
         return await command.ExecuteAsync();
@@ -59,20 +72,63 @@ public class EnvironmentService(
             _typeRepository,
             _mapper,
             _imageStorageService,
-            _adminServiceAdapter);
+            _adminServiceAdapter
+        );
 
         return await command.ExecuteAsync();
     }
 
-    public async Task UpdateDetectedObjectsAsync(Guid publicId, Dictionary<string, int> detectedObjects)
+    public async Task UpdateDetectedObjectsAsync(
+        Guid publicId,
+        Dictionary<string, int> detectedObjects
+    )
     {
         var command = new UpdateDetectedObjectsCommand(_repository, publicId, detectedObjects);
         await command.ExecuteAsync();
     }
 
-    public async Task<List<AvailableEquipmentDto>> GetAvailableEquipmentAsync(GetAvailableEnvironmentsRequest request)
+    public async Task<List<AvailableEquipmentDto>> GetAvailableEquipmentAsync(
+        GetAvailableEnvironmentsRequest request
+    )
     {
         var command = new GetAvailableEquipmentCommand(request, _repository);
         return await command.ExecuteAsync();
+    }
+
+    public async Task<EnvironmentDto> UpdateAsync(
+        Guid publicId,
+        UpdateEnvironmentDto dto,
+        Guid userId
+    )
+    {
+        var command = new UpdateEnvironmentCommand(
+            publicId,
+            userId,
+            dto,
+            _repository,
+            _areaRepository,
+            _serviceRepository,
+            _typeRepository,
+            _mapper,
+            _imageStorageService,
+            _adminServiceAdapter
+        );
+
+        var environment = await command.ExecuteAsync();
+        return _mapper.Map<EnvironmentDto>(environment);
+    }
+
+    public async Task<bool> PatchHideEnvironmentAsync(
+        Guid environmentPublicId,
+        bool hide,
+        Guid userPublicId
+    )
+    {
+        return await _repository.SetHiddenByPublicIdAsync(environmentPublicId, hide, userPublicId);
+    }
+
+    public async Task<bool> PatchDeleteEnvironmentAsync(Guid environmentPublicId, Guid userPublicId)
+    {
+        return await _repository.SoftDeleteByPublicIdAsync(environmentPublicId, userPublicId);
     }
 }
