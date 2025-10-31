@@ -5,7 +5,7 @@ namespace EnvironmentsService.Src.Application.Interfaces;
 
 public interface IPaymentService
 {
-    Task<PaymentUrlDto> CreatePayment(CreatePaymentWithClientDto dto, string gatewayName);
+    Task<PaymentUrlDto> CreatePayment(CreatePaymentWithClientDto dto, string fechaVencimiento);
 
     Task<PaymentStatusResponse> CheckAndUpdatePaymentAsync(Guid reservationId);
 }

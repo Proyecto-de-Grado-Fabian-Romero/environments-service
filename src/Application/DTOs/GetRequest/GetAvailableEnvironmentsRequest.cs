@@ -12,7 +12,7 @@ public class GetAvailableEnvironmentsRequest
 
     public List<string>? ServicePublicKeys { get; set; }
 
-    public List<(string AreaPublicKey, int MinQuantity)>? Areas { get; set; }
+    public List<AreaRequestDto>? Areas { get; set; }
 
     public Dictionary<string, int>? EquipmentRequired { get; set; }
 

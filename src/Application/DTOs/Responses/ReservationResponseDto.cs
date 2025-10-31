@@ -8,6 +8,8 @@ public class ReservationResponse
 
     public Guid EnvironmentId { get; set; }
 
+    public Guid EnvironmentPublicId { get; set; }
+
     public string EnvironmentTitle { get; set; } = string.Empty;
 
     public string RentalUnit { get; set; } = string.Empty;
@@ -29,4 +31,6 @@ public class ReservationResponse
     public string Currency { get; set; } = "Bs.";
 
     public List<ReservationPaymentResponse> Payments { get; set; } = [];
+
+    public int PeopleQuantity { get; set; } = 1;
 }

@@ -10,7 +10,11 @@ public class ImageStorageServiceAdapter(HttpClient httpClient) : IImageStorageSe
     private readonly HttpClient _httpClient = httpClient;
     private readonly string _uploadEndpoint = "/api/image/upload-multiple";
 
-    public async Task<List<UploadResult>> UploadImagesAsync(List<IFormFile> files, string bucket, string folder)
+    public async Task<List<UploadResult>> UploadImagesAsync(
+        List<IFormFile> files,
+        string bucket,
+        string folder
+    )
     {
         using var content = new MultipartFormDataContent();
 
@@ -27,10 +31,10 @@ public class ImageStorageServiceAdapter(HttpClient httpClient) : IImageStorageSe
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();
-        var results = JsonSerializer.Deserialize<List<UploadResult>>(json, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-        });
+        var results = JsonSerializer.Deserialize<List<UploadResult>>(
+            json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
 
         return results ?? new List<UploadResult>();
     }

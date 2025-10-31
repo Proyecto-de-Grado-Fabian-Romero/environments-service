@@ -10,16 +10,13 @@ public class AdminServiceAdapter(HttpClient client) : IAdminServiceAdapter
 
     public async Task RequestTourAsync(Guid environmentId, Guid ownerId)
     {
-        var payload = new
-        {
-            environmentId,
-            ownerId,
-        };
+        var payload = new { environmentId, ownerId };
 
         var content = new StringContent(
             JsonSerializer.Serialize(payload),
             Encoding.UTF8,
-            "application/json");
+            "application/json"
+        );
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/tour360requests")
         {
@@ -32,7 +29,13 @@ public class AdminServiceAdapter(HttpClient client) : IAdminServiceAdapter
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task RequestOwnerIncomeAsync(Guid ownerId, Guid reservationId, decimal amount, string currency, long generatedAt)
+    public async Task RequestOwnerIncomeAsync(
+        Guid ownerId,
+        Guid reservationId,
+        decimal amount,
+        string currency,
+        long generatedAt
+    )
     {
         var payload = new
         {
@@ -46,7 +49,8 @@ public class AdminServiceAdapter(HttpClient client) : IAdminServiceAdapter
         var content = new StringContent(
             JsonSerializer.Serialize(payload),
             Encoding.UTF8,
-            "application/json");
+            "application/json"
+        );
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/owners/earnings")
         {

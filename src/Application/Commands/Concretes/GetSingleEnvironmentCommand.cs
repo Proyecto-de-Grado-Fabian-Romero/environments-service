@@ -8,7 +8,8 @@ namespace EnvironmentsService.Src.Application.Commands.Concretes;
 public class GetSingleEnvironmentCommand(
     IEnvironmentRepository repository,
     IMapper mapper,
-    Guid publicId) : ICommand<EnvironmentDto?>
+    Guid publicId
+) : ICommand<EnvironmentDto?>
 {
     private readonly IEnvironmentRepository _repository = repository;
     private readonly IMapper _mapper = mapper;

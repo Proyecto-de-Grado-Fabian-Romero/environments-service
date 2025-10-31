@@ -7,7 +7,7 @@ public interface IPaymentGateway
 {
     string GatewayName { get; } // Eg: "Libelula", "Stripe", etc.
 
-    Task<PaymentUrlDto> GeneratePaymentUrlAsync(PaymentRequestDto request);
+    Task<PaymentUrlDto> GeneratePaymentUrlAsync(PaymentRequestDto request, string fechaVencimiento);
 
     Task<PaymentStatusResponse> CheckPaymentStatusAsync(string identificador);
 }

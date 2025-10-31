@@ -8,7 +8,8 @@ namespace EnvironmentsService.Src.Application.Services;
 public class TourService(
     ITourRepository repository,
     IEnvironmentRepository environmentRepository,
-    IObjectDetectionAdapter objectDetectionAdapter) : ITourService
+    IObjectDetectionAdapter objectDetectionAdapter
+) : ITourService
 {
     private readonly ITourRepository _repository = repository;
     private readonly IEnvironmentRepository _environmentRepository = environmentRepository;
@@ -25,25 +26,32 @@ public class TourService(
         {
             Id = Guid.NewGuid().ToString(),
             Scenes = scenes,
-            CreatedDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            CreatedDate = DateTimeOffset
+                .UtcNow.ToOffset(new TimeSpan(-4, 0, 0))
+                .ToUnixTimeSeconds(),
         };
 
         await _repository.SaveAsync(tour);
 
-        var environment = await _environmentRepository.GetSingleEnvironment(environmentPublicId) ?? throw new Exception("Ambiente no encontrado.");
+        var environment =
+            await _environmentRepository.GetSingleEnvironment(environmentPublicId)
+            ?? throw new Exception("Ambiente no encontrado.");
 
         environment.Tour360Id = Guid.Parse(tour.Id);
         await _environmentRepository.SaveChangesAsync();
 
         var imageUrls = scenes
-           .Where(s => !string.IsNullOrWhiteSpace(s.FileUrl))
-           .Select(s => s.FileUrl)
-           .ToList();
+            .Where(s => !string.IsNullOrWhiteSpace(s.FileUrl))
+            .Select(s => s.FileUrl)
+            .ToList();
 
         if (imageUrls.Count > 0)
         {
             var detectedObjects = await _objectDetectionAdapter.DetectFromImagesAsync(imageUrls);
-            await _environmentRepository.UpdateDetectedEquipmentAsync(environmentPublicId, JsonSerializer.Serialize(detectedObjects));
+            await _environmentRepository.UpdateDetectedEquipmentAsync(
+                environmentPublicId,
+                JsonSerializer.Serialize(detectedObjects)
+            );
         }
 
         return tour;

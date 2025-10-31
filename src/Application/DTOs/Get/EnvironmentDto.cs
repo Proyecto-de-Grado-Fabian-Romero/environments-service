@@ -47,4 +47,6 @@ public class EnvironmentDto
     public ICollection<SpecialAvailabilityDto> SpecialAvailabilities { get; set; } = [];
 
     public List<string> PhotoUrls { get; set; } = [];
+
+    public bool Hidden { get; set; } = false;
 }
