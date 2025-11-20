@@ -33,4 +33,10 @@ public class ReservationResponse
     public List<ReservationPaymentResponse> Payments { get; set; } = [];
 
     public int PeopleQuantity { get; set; } = 1;
+
+    public long CreatedAt { get; set; } =
+    DateTimeOffset.UtcNow.ToOffset(new TimeSpan(-4, 0, 0)).ToUnixTimeSeconds();
+
+    public long ConfirmedAt { get; set; } =
+        DateTimeOffset.UtcNow.ToOffset(new TimeSpan(-4, 0, 0)).ToUnixTimeSeconds();
 }

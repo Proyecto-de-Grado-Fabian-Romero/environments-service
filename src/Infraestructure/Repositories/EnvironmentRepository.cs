@@ -122,7 +122,6 @@ public class EnvironmentRepository(
     {
         return await _context
             .Set<Domain.Entities.Environment>()
-            .Include(e => e.OwnerId)
             .Include(e => e.Type)
             .Include(e => e.PricingPolicies)
             .Include(e => e.DiscountPolicies)

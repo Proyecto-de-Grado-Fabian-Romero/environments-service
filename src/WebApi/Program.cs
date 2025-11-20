@@ -110,13 +110,17 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateReservationRequestValidator>();
 builder.Services.AddFluentValidationAutoValidation();
 
+var imageStorageBaseUrl = builder.Configuration["Services:ImageStorage:BaseUrl"];
+var adminServiceBaseUrl = builder.Configuration["Services:Admin:BaseUrl"];
+
 builder.Services.AddHttpClient<IImageStorageServiceAdapter, ImageStorageServiceAdapter>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5116");
+    client.BaseAddress = new Uri(imageStorageBaseUrl ?? "http://localhost:5116");
 });
+
 builder.Services.AddHttpClient<IAdminServiceAdapter, AdminServiceAdapter>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5101");
+    client.BaseAddress = new Uri(adminServiceBaseUrl ?? "http://localhost:5101");
 });
 
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMQ"));
