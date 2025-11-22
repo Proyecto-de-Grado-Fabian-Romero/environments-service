@@ -20,7 +20,6 @@ public interface IReservationService
 
     Task<ReservationResponse> UpdateStatusAsync(
         Guid reservationPublicId,
-        Guid ownerId,
         string newStatus
     );
 

@@ -91,13 +91,11 @@ public class ReservationService(
 
     public async Task<ReservationResponse> UpdateStatusAsync(
         Guid reservationPublicId,
-        Guid ownerId,
         string newStatus
     )
     {
         var command = new UpdateReservationStatusCommand(
             reservationPublicId,
-            ownerId,
             newStatus,
             _resRepo,
             _adminServiceAdapter,

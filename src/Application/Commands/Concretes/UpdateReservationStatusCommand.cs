@@ -9,7 +9,6 @@ namespace EnvironmentsService.Src.Application.Commands.Concretes;
 
 public class UpdateReservationStatusCommand(
     Guid reservationPublicId,
-    Guid ownerId,
     string newStatus,
     IReservationRepository resRepo,
     IAdminServiceAdapter adminServiceAdapter,
@@ -21,9 +20,7 @@ public class UpdateReservationStatusCommand(
     private readonly string _newStatus = newStatus.ToLower();
     private readonly IReservationRepository _resRepo = resRepo;
     private readonly IAdminServiceAdapter _adminServiceAdapter = adminServiceAdapter;
-
     private readonly INotificationsPublisher _notificationsPublisher = notificationsPublisher;
-
     private readonly IMapper _mapper = mapper;
 
     public async Task<ReservationResponse> ExecuteAsync()
@@ -61,17 +58,20 @@ public class UpdateReservationStatusCommand(
             decimal descuento = precioTotal * 0.10m;
             decimal precioConDescuento = precioTotal - descuento;
 
+            Console.WriteLine($"OwnerId: {reservation.OwnerId}");
+            Console.WriteLine($"ReservationId: {reservation.PublicId}");
+
             await _adminServiceAdapter.RequestOwnerIncomeAsync(
-                ownerId,
+                reservation.OwnerId,
                 reservation.PublicId,
                 precioConDescuento,
                 reservation.Currency,
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             );
 
             var requestNotification = new SendToUserMessage
             {
-                UserPublicId = ownerId,
+                UserPublicId = reservation.OwnerId,
                 Title = "Nueva Reserva Pagada",
                 Message = "Tienes una nueva reserva pagada de uno de tus ambientes",
                 Type = "Info",

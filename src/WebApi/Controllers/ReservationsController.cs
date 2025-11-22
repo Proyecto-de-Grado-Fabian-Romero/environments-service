@@ -81,14 +81,14 @@ public class ReservationsController(IReservationService service, IPaymentService
     {
         var publicIdClaim = Request.Cookies["publicId"];
 
-        if (publicIdClaim == null || !Guid.TryParse(publicIdClaim, out var userPublicId))
+        if (publicIdClaim == null)
         {
             return Unauthorized("Invalid or missing user public_id");
         }
 
         try
         {
-            var updated = await _service.UpdateStatusAsync(publicId, userPublicId, request.Status);
+            var updated = await _service.UpdateStatusAsync(publicId, request.Status);
             return Ok(updated);
         }
         catch (Exception ex)

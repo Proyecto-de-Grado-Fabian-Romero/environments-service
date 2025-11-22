@@ -198,8 +198,7 @@ public class ReservationRepository(DbContext context) : IReservationRepository
         var now = DateTimeOffset.UtcNow.ToOffset(new TimeSpan(-4, 0, 0)).ToUnixTimeSeconds();
 
         var reservations = await query
-            .OrderBy(r => r.TimeRanges.Min(tr => tr.StartDate) < now)
-            .ThenBy(r => r.TimeRanges.Min(tr => tr.StartDate))
+            .OrderByDescending(r => r.TimeRanges.Min(tr => tr.StartDate)) // recientes arriba, antiguas abajo
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToListAsync();

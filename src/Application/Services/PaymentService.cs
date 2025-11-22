@@ -22,7 +22,7 @@ public class PaymentService(IPaymentGateway gateway, IReservationRepository repo
 
         var request = new PaymentRequestDto
         {
-            ReservationId = reservation.Id,
+            ReservationId = reservation.PublicId,
             ClientEmail = dto.ClientEmail,
             ClientCI = dto.ClientCI,
             ClientNIT = dto.ClientNIT,
@@ -36,7 +36,7 @@ public class PaymentService(IPaymentGateway gateway, IReservationRepository repo
     public async Task<PaymentStatusResponse> CheckAndUpdatePaymentAsync(Guid reservationId)
     {
         var reservation =
-            await _repo.GetByIdAsync(reservationId) ?? throw new Exception("Reservation not found");
+            await _repo.GetByPublicIdAsync(reservationId) ?? throw new Exception("Reservation not found");
 
         // var result = await _gateway.CheckPaymentStatusAsync(reservation.Id.ToString());
 
