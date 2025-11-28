@@ -32,38 +32,30 @@ public class CreateReservationCommand(
 
         foreach (var range in request.TimeRanges)
         {
-            bool isOverlapping = await _reservationRepo.ExistsOverlappingReservationAsync(
-                environment.Id,
-                range.StartDate,
-                range.EndDate,
-                environment.InstantBooking
-            );
-
-            if (isOverlapping)
-            {
-                throw new Exception("Ya hay una reserva que se superpone con el rango solicitado.");
-            }
-
+            // Convertimos UNIX seconds -> DateTime
             var startDateTime = DateTimeOffset.FromUnixTimeSeconds(range.StartDate).DateTime;
             var endDateTime = DateTimeOffset.FromUnixTimeSeconds(range.EndDate).DateTime;
 
+            // Recorremos todos los días que abarca la reserva
             for (var date = startDateTime.Date; date <= endDateTime.Date; date = date.AddDays(1))
             {
-                var resStart =
-                    date == startDateTime.Date ? startDateTime.TimeOfDay.TotalSeconds : 0;
-                var resEnd =
-                    date == endDateTime.Date ? endDateTime.TimeOfDay.TotalSeconds : 86400000;
-                var resStartTime =
-                    date == startDateTime.Date ? startDateTime.TimeOfDay : TimeSpan.Zero;
-                var resEndTime =
-                    date == endDateTime.Date ? endDateTime.TimeOfDay : TimeSpan.FromMinutes(1440); // Fin del día
-
-                var resStartMinutes = (int)resStartTime.TotalMinutes;
-                var resEndMinutes = (int)resEndTime.TotalMinutes;
-
-                var special = environment.SpecialAvailabilities.FirstOrDefault(sa =>
-                    sa.Date.Date == date.Date
+                // Para comparar horarios, convertimos TODO a minutos
+                var resStartMinutes = (int)(
+                    date == startDateTime.Date
+                        ? startDateTime.TimeOfDay.TotalMinutes
+                        : 0 // Inicio del día
                 );
+
+                var resEndMinutes = (int)(
+                    date == endDateTime.Date
+                        ? endDateTime.TimeOfDay.TotalMinutes
+                        : 1440 // Fin del día: 24*60
+                );
+
+                // === VALIDACIÓN SPECIAL AVAILABILITY ===
+                var special = environment.SpecialAvailabilities
+                    .FirstOrDefault(sa => sa.Date.Date == date.Date);
+
                 if (special != null)
                 {
                     if (!special.IsAvailable)
@@ -71,26 +63,34 @@ public class CreateReservationCommand(
                         throw new Exception($"El entorno no está disponible el {date:yyyy-MM-dd}.");
                     }
 
-                    if (resStart < special.StartTime || resEnd > special.EndTime)
+                    // special.StartTime y EndTime vienen en milisegundos -> convertir a minutos
+                    var specialStartMinutes = (int)TimeSpan.FromMilliseconds(special.StartTime).TotalMinutes;
+                    var specialEndMinutes = (int)TimeSpan.FromMilliseconds(special.EndTime).TotalMinutes;
+
+                    if (resStartMinutes < specialStartMinutes || resEndMinutes > specialEndMinutes)
                     {
                         throw new Exception(
-                            $"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMilliseconds(special.StartTime)} y {TimeSpan.FromMilliseconds(special.EndTime)}."
+                            $"La reserva en {date:yyyy-MM-dd} debe estar entre " +
+                            $"{TimeSpan.FromMinutes(specialStartMinutes):hh\\:mm} y " +
+                            $"{TimeSpan.FromMinutes(specialEndMinutes):hh\\:mm}."
                         );
                     }
                 }
+                // === VALIDACIÓN WEEKLY SCHEDULE ===
                 else if (environment.RentalUnit == "Horas")
                 {
                     var dayOfWeek = (int)date.DayOfWeek;
-                    var weekly =
-                        environment.WeeklySchedules.FirstOrDefault(ws => ws.DayOfWeek == dayOfWeek)
-                        ?? throw new Exception(
-                            $"El entorno no está disponible el día {date:dddd}."
-                        );
+
+                    var weekly = environment.WeeklySchedules
+                        .FirstOrDefault(ws => ws.DayOfWeek == dayOfWeek)
+                        ?? throw new Exception($"El entorno no está disponible el día {date:dddd}.");
 
                     if (resStartMinutes < weekly.StartTime || resEndMinutes > weekly.EndTime)
                     {
                         throw new Exception(
-                            $"La reserva en {date:yyyy-MM-dd} debe estar entre {TimeSpan.FromMinutes(weekly.StartTime):hh\\:mm} y {TimeSpan.FromMinutes(weekly.EndTime):hh\\:mm}."
+                            $"La reserva en {date:yyyy-MM-dd} debe estar entre " +
+                            $"{TimeSpan.FromMinutes(weekly.StartTime):hh\\:mm} y " +
+                            $"{TimeSpan.FromMinutes(weekly.EndTime):hh\\:mm}."
                         );
                     }
                 }
@@ -120,29 +120,29 @@ public class CreateReservationCommand(
 
             bool reservationOverlaps = false;
 
-            foreach (var existingRange in existing.TimeRanges)
-            {
-                var exStart = DateTimeOffset
-                    .FromUnixTimeSeconds(existingRange.StartDate)
-                    .UtcDateTime;
-                var exEnd = DateTimeOffset.FromUnixTimeSeconds(existingRange.EndDate).UtcDateTime;
+            // foreach (var existingRange in existing.TimeRanges)
+            // {
+            //     var exStart = DateTimeOffset
+            //         .FromUnixTimeSeconds(existingRange.StartDate)
+            //         .UtcDateTime;
+            //     var exEnd = DateTimeOffset.FromUnixTimeSeconds(existingRange.EndDate).UtcDateTime;
 
-                // Comparamos con todos los nuevos rangos; basta con que uno se solape
-                foreach (var newRange in newRanges)
-                {
-                    // condición clásica de solapamiento: newStart < exEnd && newEnd > exStart
-                    if (newRange.Start < exEnd && newRange.End > exStart)
-                    {
-                        reservationOverlaps = true;
-                        break;
-                    }
-                }
+            //     // Comparamos con todos los nuevos rangos; basta con que uno se solape
+            //     foreach (var newRange in newRanges)
+            //     {
+            //         // condición clásica de solapamiento: newStart < exEnd && newEnd > exStart
+            //         if (newRange.Start < exEnd && newRange.End > exStart)
+            //         {
+            //             reservationOverlaps = true;
+            //             break;
+            //         }
+            //     }
 
-                if (reservationOverlaps)
-                {
-                    break;
-                }
-            }
+            //     if (reservationOverlaps)
+            //     {
+            //         break;
+            //     }
+            // }
 
             if (reservationOverlaps)
             {
