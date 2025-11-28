@@ -29,7 +29,7 @@ public class LibelulaGateway(HttpClient httpClient, IConfiguration config) : IPa
             ci = req.ClientCI ?? "0",
             callback_url = $"",
             fecha_vencimiento = fechaVencimiento,
-            url_retorno = $"https://spacio.netlify.app/reservas/{req.ReservationId}/confirmado",
+            url_retorno = $"https://spacio-app.netlify.app/reservas/{req.ReservationId}/confirmado",
             emite_factura = true,
             tipo_factura = "Servicios",
             moneda = "BOB",
