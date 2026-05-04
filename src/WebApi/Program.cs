@@ -21,8 +21,8 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder
-    .Configuration.SetBasePath(builder.Environment.ContentRootPath)
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile(
         $"appsettings.{builder.Environment.EnvironmentName}.json",
         optional: true,
@@ -141,15 +141,14 @@ builder.Services.AddScoped<IMessageBus>(sp =>
 builder.Services.AddAutoMapper(typeof(EnvironmentProfile));
 
 var app = builder.Build();
-app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
+app.UseCors("AllowFrontend");
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
